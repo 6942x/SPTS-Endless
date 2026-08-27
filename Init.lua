@@ -24,6 +24,7 @@ local cf={kb="G",st=nil,aw=false,as=true,tb="Auto Farm",sv=nil,up=nil,rp=nil,fm=
 local mf
 local lt=0
 local vp=false
+local fq=0
 local fp="eSPTS/Accounts/"..nm..".json"
 
 local inf=sg:WaitForChild("MenuFrame"):WaitForChild("InfoFrame")
@@ -643,7 +644,7 @@ local function gRSz() return math.floor(bR*sc) end
 
 local rb=Instance.new("ImageButton",mg)
 rb.Name="ReopenButton"
-rb.Size=UDim2.new(0,rSz,0,rSz)
+rb.Size=UDim2.new(0,gRSz(),0,gRSz())
 rb.Position=UDim2.new(0,100,0,100)
 rb.BackgroundColor3=Color3.fromRGB(150,80,255)
 rb.BorderSizePixel=0
@@ -1121,6 +1122,7 @@ local function dW()
                         if cf.aw and mg and mg.Parent then
                                 re:FireServer(unpack({{"Add_MS_Request"}}))
                                 re:FireServer(unpack({{"Add_JF_Request"}}))
+                                ebw()
                         end
                 end
                 thr.W=nil
@@ -1557,6 +1559,10 @@ cn(rs.Heartbeat,function()
         end
         if cf.st=="FistStrength" then
                 if w2<=ctn("10T")then re:FireServer(unpack({{"Add_FS_Request"}}))end
+        elseif cf.st=="MovementSpeed" then
+                if tick()-fq>=1 then fq=tick()re:FireServer(unpack({{"Add_MS_Request"}}))end
+        elseif cf.st=="JumpForce" then
+                if tick()-fq>=1 then fq=tick()re:FireServer(unpack({{"Add_JF_Request"}}))end
         end
 end)
 
