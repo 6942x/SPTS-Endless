@@ -73,6 +73,10 @@ local function wfr(a)
         w25:FireServer(a)
 end
 
+local wF = { "Add_FS_Request" }
+local wM = { "Add_MS_Request" }
+local wJ = { "Add_JF_Request" }
+
 local function wdr()
         if not makefolder or not isfolder then return end
         if not isfolder("eSPTS") then makefolder("eSPTS") end
@@ -88,7 +92,7 @@ local function wsv()
         local b = {
                 uid = w21, name = w20, key = w22.key, stat = w22.stat, weight = w22.weight,
                 as = w22.as, tab = w22.tab, save = a, pos = w22.pos, icon = w22.icon,
-                mode = w22.mode, hide = w22.hide
+                mode = w22.mode, hide = w22.hide, rsp = w22.rsp, rtype = w22.rtype
         }
         local c = pcall(function() writefile(w23, w4:JSONEncode(b)) end)
         if c then
@@ -122,10 +126,13 @@ local function wld()
         w22.weight = b.weight or false
         w22.as = b.as ~= nil and b.as or true
         w22.tab = b.tab or "Auto Farm"
+        if w22.tab == "Position Man" then w22.tab = "Position Manager" end
         if b.save and #b.save == 12 then w22.save = CFrame.new(unpack(b.save)) end
         w22.pos = b.pos
         w22.icon = b.icon
         w22.mode = b.mode
+        w22.rsp = b.rsp == true
+        w22.rtype = (b.rtype == "Risky" or b.rtype == "Safe" or b.rtype == "Normal") and b.rtype or "Normal"
         w22.hide = b.hide or false
         return true
 end
@@ -335,6 +342,14 @@ local function w41(a)
         return f
 end
 
+local w38n = {}
+for a, b in pairs(w38) do
+        w38n[a] = {}
+        for c, d in pairs(b) do
+                w38n[a][c] = w41(d.req)
+        end
+end
+
 local w42 = {
         FistStrength  = wr(w26, "FSTxt"),
         BodyToughness = wr(w26, "BTTxt"),
@@ -350,33 +365,31 @@ local function w43(a)
 end
 
 local function w44(a, b)
-        local c = w38[a]
+        local c = w38n[a]
         if not c then return nil end
         local d, e = nil, -1
         for f, g in pairs(c) do
-                local h = w41(g.req)
-                if b >= h and h > e then
+                if b >= g and g > e then
                         d = f
-                        e = h
+                        e = g
                 end
         end
         return d
 end
 
 local function w45(a, b)
-        local c = w38[a]
+        local c = w38n[a]
         if not c then return nil end
         local d, e, f, g = nil, -1, nil, -1
         for h, i in pairs(c) do
-                local j = w41(i.req)
-                if b >= j and j > e then
+                if b >= i and i > e then
                         f = d
                         g = e
                         d = h
-                        e = j
-                elseif b >= j and j > g and j < e then
+                        e = i
+                elseif b >= i and i > g and i < e then
                         f = h
-                        g = j
+                        g = i
                 end
         end
         return f
@@ -611,6 +624,7 @@ local function w61(a, b, c)
         h.TextXAlignment = w13
         h.LayoutOrder = 1
         local i = 1
+        local q = {}
         local function j(k, l)
                 h.Visible = false
                 i = i + 1
@@ -627,6 +641,11 @@ local function w61(a, b, c)
                 n.TextYAlignment = w14
                 n.TextWrapped = true
                 n.LayoutOrder = i
+                q[#q + 1] = n
+                if #q > 40 then
+                        q[1]:Destroy()
+                        table.remove(q, 1)
+                end
                 task.defer(function() e.CanvasPosition = w8(0, math.huge) end)
                 return n
         end
@@ -634,6 +653,7 @@ local function w61(a, b, c)
                 for _, p in ipairs(e:GetChildren()) do
                         if p:IsA("TextLabel") and p ~= h then p:Destroy() end
                 end
+                q = {}
                 i = 1
                 h.Visible = true
         end
@@ -929,15 +949,16 @@ local function w86(a, b, c)
 end
 
 local w87 = {
-        { n = "Auto Farm",    i = "\xf0\x9f\x94\xa5",             o = 1 },
-        { n = "Auto Weights", i = "\xf0\x9f\x8f\x8b\xef\xb8\x8f", o = 2 },
-        { n = "Position Man", i = "\xf0\x9f\x8e\xaf",             o = 3 },
-        { n = "Settings",     i = "\xe2\x9a\x99\xef\xb8\x8f",     o = 4 }
+        { n = "Auto Farm",        i = "\xf0\x9f\x94\xa5",             o = 1 },
+        { n = "Auto Weights",     i = "\xf0\x9f\x8f\x8b\xef\xb8\x8f", o = 2 },
+        { n = "Auto Respawn",     i = "\xe2\x98\xa0\xef\xb8\x8f",             o = 3 },
+        { n = "Position Manager", i = "\xf0\x9f\x8e\xaf",             o = 4, s = 11 },
+        { n = "Settings",         i = "\xe2\x9a\x99\xef\xb8\x8f",     o = 5 }
 }
 
 local w88, w89 = {}, {}
 
-local function w90(a, b, c)
+local function w90(a, b, c, s)
         local d = w9("TextButton", w76)
         d.Name = a .. "Tab"
         d.Size = w6(1, -10, 0, 50)
@@ -958,12 +979,12 @@ local function w90(a, b, c)
         e.TextColor3 = w5(180, 180, 180)
         e.TextXAlignment = w13
         local f = w9("TextLabel", d)
-        f.Size = w6(1, -50, 1, 0)
+        f.Size = w6(1, -46, 1, 0)
         f.Position = w6(0, 45, 0, 0)
         f.BackgroundTransparency = 1
         f.Text = a
         f.Font = w11
-        f.TextSize = 13
+        f.TextSize = s or 13
         f.TextColor3 = w5(180, 180, 180)
         f.TextXAlignment = w13
         w88[a] = { b = d, i = e, l = f }
@@ -972,11 +993,11 @@ local function w90(a, b, c)
                 if g then
                         w29(d, w28.q, { Size = w6(1, -4, 0, 54) })
                         w29(e, w28.q, { TextSize = 21 })
-                        w29(f, w28.q, { TextSize = 14 })
+                        w29(f, w28.q, { TextSize = (s or 13) + 1 })
                 else
                         w29(d, w28.q, { BackgroundColor3 = w5(45, 32, 62), Size = w6(1, -4, 0, 54) })
                         w29(e, w28.q, { TextColor3 = w5(200, 200, 200), TextSize = 21 })
-                        w29(f, w28.q, { TextColor3 = w5(200, 200, 200), TextSize = 14 })
+                        w29(f, w28.q, { TextColor3 = w5(200, 200, 200), TextSize = (s or 13) + 1 })
                 end
         end)
         w33(d.MouseLeave, function()
@@ -984,11 +1005,11 @@ local function w90(a, b, c)
                 if g then
                         w29(d, w28.q, { BackgroundColor3 = w5(150, 80, 255), Size = w6(1, -10, 0, 50) })
                         w29(e, w28.q, { TextColor3 = w5(255, 255, 255), TextSize = 18 })
-                        w29(f, w28.q, { TextColor3 = w5(255, 255, 255), TextSize = 13 })
+                        w29(f, w28.q, { TextColor3 = w5(255, 255, 255), TextSize = s or 13 })
                 else
                         w29(d, w28.q, { BackgroundColor3 = w5(32, 24, 45), Size = w6(1, -10, 0, 50) })
                         w29(e, w28.q, { TextColor3 = w5(180, 180, 180), TextSize = 18 })
-                        w29(f, w28.q, { TextColor3 = w5(180, 180, 180), TextSize = 13 })
+                        w29(f, w28.q, { TextColor3 = w5(180, 180, 180), TextSize = s or 13 })
                 end
         end)
         w33(d.MouseButton1Down, function()
@@ -1038,7 +1059,7 @@ local function w91(a)
 end
 
 for _, a in ipairs(w87) do
-        w90(a.n, a.i, a.o)
+        w90(a.n, a.i, a.o, a.s)
         w91(a.n)
 end
 
@@ -1223,7 +1244,8 @@ do
                                 end
                         end
                         local an = w43("BodyToughness")
-                        local ao = aj == "c" and w45("BodyToughness", an) or w44("BodyToughness", an)
+                        local ao
+                        if aj == "c" then ao = w45("BodyToughness", an) else ao = w44("BodyToughness", an) end
                         if not ao then
                                 w94.status.Text = "Body Toughness \xe2\x80\x94 No available area"
                                 w94.area = nil
@@ -1281,7 +1303,7 @@ do
         w94.refresh = i
 end
 
-local w95, w96, w97
+local w95, w96, w97, w100
 
 do
         local a = w89["Auto Weights"]
@@ -1301,8 +1323,8 @@ do
                         while w22.weight do
                                 task.wait(0.1)
                                 if w22.weight and w62 and w62.Parent then
-                                        wfr({ "Add_MS_Request" })
-                                        wfr({ "Add_JF_Request" })
+                                        wfr(wM)
+                                        wfr(wJ)
                                         a = a + 1
                                         w48(a >= 30)
                                         if a >= 30 then a = 0 end
@@ -1337,10 +1359,97 @@ do
         w58(d, w5(45, 32, 62), w5(38, 28, 52), function() return w22.weight end)
 end
 
+do
+        local a = w89["Auto Respawn"]
+        local b = w51(a, 316, 1)
+        w53(b, "\xe2\x98\xa0\xef\xb8\x8f Auto Respawn", 8)
+        w52(b, "Automatically respawn to cut idle time between training cycles", 32)
+        local _, c = w59(b, w6(1, -20, 0, 30), w6(0, 10, 0, 54), "Auto respawn inactive")
+        c.TextYAlignment = w15
+        local d, e = w54(b, "Enable Auto Respawn", 90)
+        local f, g = w55(d, w6(0, 52, 0, 26), false)
+        w58(d, w5(45, 32, 62), w5(38, 28, 52), function() return w22.rsp end)
+        w52(b, "Respawn Mode", 138)
+        local h = {
+                { n = "Risky",  t = "Total animation skip and instantly respawning" },
+                { n = "Safe",   t = "Slower and safer version of the risky" },
+                { n = "Normal", t = "No animation skip just basic" }
+        }
+        w22.rtype = w22.rtype or "Normal"
+        local i, j = w22.rtype, {}
+        local k
+        for l, m in ipairs(h) do
+                local n = w9("Frame", b)
+                n.Size = w6(1, -20, 0, 44)
+                n.Position = w6(0, 10, 0, 160 + ((l - 1) * 50))
+                n.BackgroundColor3 = w5(38, 28, 52)
+                n.BorderSizePixel = 0
+                w49(n, 10)
+                local o = w9("TextButton", n)
+                o.Size = w6(1, 0, 1, 0)
+                o.BackgroundTransparency = 1
+                o.Text = ""
+                o.AutoButtonColor = false
+                local p = w9("TextLabel", n)
+                p.Size = w6(1, -20, 0, 16)
+                p.Position = w6(0, 10, 0, 5)
+                p.BackgroundTransparency = 1
+                p.Text = m.n
+                p.Font = w11
+                p.TextSize = 14
+                p.TextColor3 = w5(180, 160, 220)
+                p.TextXAlignment = w13
+                local q = w9("TextLabel", n)
+                q.Size = w6(1, -20, 0, 13)
+                q.Position = w6(0, 10, 0, 24)
+                q.BackgroundTransparency = 1
+                q.Text = m.t
+                q.Font = w10
+                q.TextSize = 11
+                q.TextColor3 = w5(150, 150, 150)
+                q.TextXAlignment = w13
+                j[m.n] = { f = n, l = p }
+                w33(o.MouseButton1Click, function()
+                        if not w34("R" .. m.n, 0.15) then return end
+                        i = m.n
+                        w22.rtype = m.n
+                        k()
+                        if w22.rsp then
+                                c.Text = "Auto respawn armed \xe2\x80\x94 mode: " .. m.n
+                        end
+                        wsq()
+                end)
+                w58(n, w5(45, 32, 62), w5(38, 28, 52), function() return i == m.n end)
+        end
+        k = function()
+                for l, m in pairs(j) do
+                        local n = i == l
+                        w29(m.f, w28.q, { BackgroundColor3 = n and w5(55, 30, 75) or w5(38, 28, 52) })
+                        m.l.TextColor3 = n and w5(255, 255, 255) or w5(180, 160, 220)
+                end
+        end
+        k()
+        w33(f.MouseButton1Click, function()
+                if not w34("AR", 0.15) then return end
+                w22.rsp = not w22.rsp
+                w56(g, w22.rsp)
+                c.Text = w22.rsp and "Auto respawn armed \xe2\x80\x94 mode: " .. i or "Auto respawn inactive"
+                w37(w22.rsp and "Auto Respawn enabled" or "Auto Respawn disabled", w22.rsp and w5(80, 220, 120) or w5(180, 180, 180))
+                wsq()
+        end)
+        w100 = {}
+        w100.apply = function()
+                i = w22.rtype
+                k()
+                w56(g, w22.rsp)
+                c.Text = w22.rsp and "Auto respawn armed \xe2\x80\x94 mode: " .. i or "Auto respawn inactive"
+        end
+end
+
 local w98 = {}
 
 do
-        local a = w89["Position Man"]
+        local a = w89["Position Manager"]
         local b = w51(a, 130, 1)
         w53(b, "\xf0\x9f\x93\x8c Position Manager", 8)
         w52(b, "Save and restore your position for automatic respawning and pullback", 32)
@@ -1635,6 +1744,7 @@ if a0 then
         w99.key.Text = "Current Key: " .. w22.key
         w56(w95.t, w22.weight)
         w97(true)
+        w100.apply()
         if w22.stat then
                 for a, b in pairs(w94.rows) do
                         if a == w22.stat then
@@ -1642,7 +1752,8 @@ if a0 then
                                 w29(b.f, w28.q, { BackgroundColor3 = w5(55, 30, 75) })
                                 b.l.TextColor3 = w5(255, 255, 255)
                                 local c = w43(a)
-                                local d = a == "BodyToughness" and w22.mode == "c" and w45(a, c) or w44(a, c)
+                                local d
+                                if a == "BodyToughness" and w22.mode == "c" then d = w45(a, c) else d = w44(a, c) end
                                 if d then
                                         local e = w46(a, d)
                                         w94.area = e
@@ -1693,7 +1804,8 @@ w33(w1.Heartbeat, function()
         local c = b:FindFirstChild("HumanoidRootPart")
         if not c then return end
         local d = w43(w22.stat)
-        local e = w22.stat == "BodyToughness" and w22.mode == "c" and w45(w22.stat, d) or w44(w22.stat, d)
+        local e
+        if w22.mode == "c" and w22.stat == "BodyToughness" then e = w45(w22.stat, d) else e = w44(w22.stat, d) end
         if e and (not w94.area or w94.area.Name ~= e) then
                 local f = w46(w22.stat, e)
                 if f then
@@ -1712,16 +1824,16 @@ w33(w1.Heartbeat, function()
         end
         if w94.anchor and (c.Position - w94.anchor.Position).Magnitude > 15 then c.CFrame = w94.anchor end
         if w22.stat == "FistStrength" then
-                wfr({ "Add_FS_Request" })
+                wfr(wF)
         elseif w22.stat == "MovementSpeed" then
                 if tick() - w94.thr >= 0.1 then
                         w94.thr = tick()
-                        wfr({ "Add_MS_Request" })
+                        wfr(wM)
                 end
         elseif w22.stat == "JumpForce" then
                 if tick() - w94.thr >= 0.1 then
                         w94.thr = tick()
-                        wfr({ "Add_JF_Request" })
+                        wfr(wJ)
                 end
         end
 end)
