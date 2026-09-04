@@ -204,6 +204,24 @@ local function w37(a, b)
         end
 end
 
+local wP = { "Meditation_Request", true }
+local wQ = { "Meditation_Request", false }
+
+local function wpm(a)
+        if a then
+                w32("PP", function()
+                        task.wait(1)
+                        if w22.stat == "PsychicPower" then
+                                wfr(wP)
+                                w37("Psychic Power \xe2\x80\x94 Meditating", w5(170, 120, 255))
+                        end
+                end)
+        else
+                w31("PP")
+                wfr(wQ)
+        end
+end
+
 local w38 = {
         FistStrength = {
                 TrainingArea_2  = { req = "0e0",    multi = "x1e1"    },
@@ -353,9 +371,9 @@ end
 local w42 = {
         FistStrength  = wr(w26, "FSTxt"),
         BodyToughness = wr(w26, "BTTxt"),
-        PsychicPower  = wr(w26, "PPTxt"),
+        MovementSpeed = wr(w26, "MSTxt"),
         JumpForce     = wr(w26, "JFTxt"),
-        MovementSpeed = wr(w26, "MSTxt")
+        PsychicPower  = wr(w26, "PPTxt")
 }
 
 local function w43(a)
@@ -1112,11 +1130,11 @@ do
         local e = {
                 FistStrength  = "Fist Strength",
                 BodyToughness = "Body Toughness",
-                PsychicPower  = "Psychic Power",
+                MovementSpeed = "Movement Speed",
                 JumpForce     = "Jump Force",
-                MovementSpeed = "Movement Speed"
+                PsychicPower  = "Psychic Power"
         }
-        local f = { "FistStrength", "BodyToughness", "PsychicPower", "JumpForce", "MovementSpeed" }
+        local f = { "FistStrength", "BodyToughness", "MovementSpeed", "JumpForce", "PsychicPower" }
         local g, h = {}, {}
         local i
         for j, k in ipairs(f) do
@@ -1134,10 +1152,12 @@ do
                                                 w56(r.t, false)
                                                 w29(r.f, w28.q, { BackgroundColor3 = w5(38, 28, 52) })
                                                 r.l.TextColor3 = w5(200, 200, 200)
+                                                if q == "PsychicPower" then wpm(false) end
                                         end
                                 end
                                 w22.stat = k
                                 if k ~= "BodyToughness" then w22.mode = nil end
+                                if k == "PsychicPower" then wpm(true) end
                                 w29(l, w28.q, { BackgroundColor3 = w5(55, 30, 75) })
                                 m.TextColor3 = w5(255, 255, 255)
                                 local s = w43(k)
@@ -1176,6 +1196,7 @@ do
                                 w94.area = nil
                                 w94.anchor = nil
                                 w22.mode = nil
+                                if k == "PsychicPower" then wpm(false) end
                                 w29(l, w28.q, { BackgroundColor3 = w5(38, 28, 52) })
                                 m.TextColor3 = w5(200, 200, 200)
                                 w94.status.Text = "No active training"
@@ -1241,6 +1262,7 @@ do
                                         w56(am.t, false)
                                         w29(am.f, w28.q, { BackgroundColor3 = w5(38, 28, 52) })
                                         am.l.TextColor3 = w5(200, 200, 200)
+                                        if al == "PsychicPower" then wpm(false) end
                                 end
                         end
                         local an = w43("BodyToughness")
@@ -1776,6 +1798,7 @@ if a0 then
                                 b.l.TextColor3 = w5(200, 200, 200)
                         end
                 end
+                if w22.stat == "PsychicPower" then wpm(true) end
         else
                 w94.status.Text = "No active training"
         end
@@ -1855,6 +1878,7 @@ w33(w16.CharacterAdded, function(a)
                 local c, d = w47(w94.area)
                 if c then w94.anchor = d end
         end
+        if w22.stat == "PsychicPower" then wpm(true) end
 end)
 
 if w16.Character then
