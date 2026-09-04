@@ -26,27 +26,27 @@ local w9 = Instance.new
 local w10 = Enum.Font.SourceSansBold
 
 local w11 = {
-    bg = w8(4.5e1, 4.5e1, 4.5e1),
-    btn = w8(6e1, 6e1, 6e1),
-    item = w8(7e1, 7e1, 7e1),
-    hov = w8(8e1, 8e1, 8e1),
-    prs = w8(9e1, 9e1, 9e1),
-    inp = w8(1.1e2, 1.1e2, 1.1e2),
-    drop = w8(5e1, 5e1, 5e1),
-    dim = w8(1.5e2, 1.5e2, 1.5e2),
-    red = w8(1.8e2, 0e0, 0e0),
-    redH = w8(2.2e2, 3e1, 3e1),
-    cy = w8(0e0, 1.68e2, 2.55e2),
-    pu = w8(1.68e2, 8.5e1, 2.47e2),
-    org = w8(2.45e2, 1.58e2, 1.1e1),
-    orgH = w8(2.51e2, 1.91e2, 3.6e1),
-    wht = w8(2.55e2, 2.55e2, 2.55e2),
-    blk = w8(0e0, 0e0, 0e0)
+    bg = w8(45, 45, 45),
+    btn = w8(60, 60, 60),
+    item = w8(70, 70, 70),
+    hov = w8(80, 80, 80),
+    prs = w8(90, 90, 90),
+    inp = w8(110, 110, 110),
+    drop = w8(50, 50, 50),
+    dim = w8(150, 150, 150),
+    red = w8(180, 0, 0),
+    redH = w8(220, 30, 30),
+    cy = w8(0, 168, 255),
+    cyH = w8(64, 196, 255),
+    pu = w8(168, 85, 247),
+    org = w8(245, 158, 11),
+    orgH = w8(251, 191, 36),
+    wht = w8(255, 255, 255)
 }
 
 local function w12(a, b)
     local c = a:Connect(b)
-    w.cn[#w.cn + 1e0] = c
+    w.cn[#w.cn + 1] = c
     return c
 end
 
@@ -64,28 +64,32 @@ local w14 = {
     {"Oc", 1e27}, {"No", 1e30}, {"Dc", 1e33}, {"Ud", 1e36},
     {"Dd", 1e39}, {"Td", 1e42}
 }
-w14.m = {Million = 1e6, Billion = 1e9, Trillion = 1e12}
-for _, a in ipairs(w14) do w14.m[a[1e0]] = a[2e0] end
+w14.m = {million = 1e6, billion = 1e9, trillion = 1e12}
+for _, a in ipairs(w14) do
+    w14.m[a[1]] = a[2]
+    w14.m[string.lower(a[1])] = a[2]
+end
 
 local function w15(a)
     a = tonumber(a)
     if not a then return "0" end
     local b = math.abs(a)
-    for c = #w14, 1e0, -1e0 do
+    for c = #w14, 1, -1 do
         local d = w14[c]
-        if b >= d[2e0] then
-            return (string.format("%.2f", a / d[2e0]):gsub("%.?0+$", "")) .. d[1e0]
+        if b >= d[2] then
+            return (string.format("%.2f", a / d[2]):gsub("%.?0+$", "")) .. d[1]
         end
     end
     return tostring(a)
 end
 
 local function w16(a)
-    a = tostring(a):gsub("^%s*[xX]%s*", "")
+    a = tostring(a):gsub("[,%s]", "")
+    a = a:gsub("^[xX]", "")
     local b = tonumber(a)
     if b then return b end
     local c, d = string.match(a, "([%d%.]+)%s*(%a+)")
-    if c then return tonumber(c) * (w14.m[d] or 1e0) end
+    if c then return tonumber(c) * (w14.m[string.lower(d)] or 1) end
     return nil
 end
 
@@ -93,19 +97,19 @@ local function w17(a)
     a = tonumber(a)
     if not a or a ~= a then return "0d 0h 0m" end
     if a == math.huge or a <= -1e18 then return "Never" end
-    if a < 0e0 then a = 0e0 end
-    local b = math.floor(a / 8.64e4)
+    if a < 0 then a = 0 end
+    local b = math.floor(a / 86400)
     if b >= 1e6 then return w15(b) .. " days" end
-    local c = math.floor((a % 8.64e4) / 3.6e3)
-    local d = math.floor((a % 3.6e3) / 6e1)
+    local c = math.floor((a % 86400) / 3600)
+    local d = math.floor((a % 3600) / 60)
     return string.format("%.0fd %.0fh %.0fm", b, c, d)
 end
 
-local function w66(a, b)
-    return a .. " -- " .. w15(w16(b) or 0e0)
+local function w18(a, b)
+    return a .. " -- " .. w15(w16(b) or 0)
 end
 
-local w18 = {
+local w19 = {
     FS = {
         {name = "TrainingArea_2", req = "0e0", multi = "x1e1"},
         {name = "TrainingArea_3", req = "1e6", multi = "x1e2"},
@@ -191,130 +195,79 @@ local w18 = {
     }
 }
 
-local w19 = {"FS", "BT", "MS", "JF", "PP"}
+local w20 = {"FS", "BT", "MS", "JF", "PP"}
 
-local w63 = {FS = "1e15", BT = "7.383e12", PP = "3.33e17"}
-local w64 = {}
-for a, b in pairs(w63) do
-    for c, d in ipairs(w18[a]) do
+local w21 = {FS = "1e15", BT = "7.383e12", PP = "3.33e17"}
+local w22 = {}
+for a, b in pairs(w21) do
+    for c, d in ipairs(w19[a]) do
         if d.req == b then
-            w64[a] = c
+            w22[a] = c
             break
         end
     end
 end
 
-local w20 = "TrainingCalc/" .. w5.Name .. ".json"
-local w21 = {key = "G", pos = nil, icon = nil, speed = false, train = false, power = "0", cat = nil, mem = {}}
-local w22, w25, w28
-local w30, w31 = false, false
-local w67 = os.clock()
+local w23 = "TrainingCalc/" .. w5.Name .. ".json"
+local w24 = {key = "G", pos = nil, icon = nil, speed = false, train = false, power = "0", cat = nil, view = "Home", mem = {}, tok = {tokens = "", tpm = "", obj = "", tpo = ""}}
+local w26, w29, w34
+local w84, w85 = false, false
+local w27 = os.clock()
 
-local function w23()
-    if not readfile or not isfile(w20) then return end
-    local a, b = pcall(function() return w4:JSONDecode(readfile(w20)) end)
+local function w25()
+    if not readfile or not isfile(w23) then return end
+    local a, b = pcall(function() return w4:JSONDecode(readfile(w23)) end)
     if a and type(b) == "table" then
-        w21.key = b.key or "G"
+        w24.key = b.key or "G"
         if type(b.pos) == "table" and type(b.pos.X) == "number" and type(b.pos.Y) == "number" then
-            w21.pos = b.pos
+            w24.pos = b.pos
         end
         if type(b.icon) == "table" and type(b.icon.X) == "number" and type(b.icon.Y) == "number" then
-            w21.icon = b.icon
+            w24.icon = b.icon
         end
-        w21.speed = b.speed or false
-        w21.train = b.train or false
-        w21.power = b.power or "0"
-        w21.cat = b.cat
+        w24.speed = b.speed or false
+        w24.train = b.train or false
+        w24.power = b.power or "0"
+        w24.cat = b.cat
+        if b.view == "Farming" or b.view == "Tokens" then
+            w24.view = b.view
+        end
         if type(b.mem) == "table" then
-            w21.mem = {}
+            w24.mem = {}
             for c, d in pairs(b.mem) do
                 if type(d) == "table" then
                     d.val = tonumber(d.val)
                     d.area = tonumber(d.area)
-                    w21.mem[c] = d
+                    w24.mem[c] = d
                 end
             end
         end
+        if type(b.tok) == "table" then
+            w24.tok.tokens = tostring(b.tok.tokens or "")
+            w24.tok.tpm = tostring(b.tok.tpm or "")
+            w24.tok.obj = tostring(b.tok.obj or "")
+            w24.tok.tpo = tostring(b.tok.tpo or "")
+        end
     end
 end
 
-w22 = function(a)
+w26 = function(a)
     if not writefile then return end
     if not isfolder("TrainingCalc") then makefolder("TrainingCalc") end
-    if not a and os.clock() - w67 >= 5e0 then
-        if w25 and w25.Visible and not w31 then
-            w21.pos = {X = w25.Position.X.Offset, Y = w25.Position.Y.Offset}
+    if not a and os.clock() - w27 >= 5 then
+        if w29 and w29.Visible and not w85 then
+            w24.pos = {X = w29.Position.X.Offset, Y = w29.Position.Y.Offset}
         end
-        if w28 then
-            w21.icon = {X = w28.Position.X.Offset, Y = w28.Position.Y.Offset}
+        if w34 then
+            w24.icon = {X = w34.Position.X.Offset, Y = w34.Position.Y.Offset}
         end
     end
-    pcall(function() writefile(w20, w4:JSONEncode(w21)) end)
+    pcall(function() writefile(w23, w4:JSONEncode(w24)) end)
 end
 
-w23()
+w25()
 
-if w6:FindFirstChild("TrainingCalculatorGUI") then
-    w6.TrainingCalculatorGUI:Destroy()
-end
-
-local w24 = w9("ScreenGui")
-w24.Name = "TrainingCalculatorGUI"
-w24.ResetOnSpawn = false
-w24.Parent = w6
-w.gui = w24
-
-w25 = w9("Frame", w24)
-w25.Name = "MainFrame"
-w25.Size = w7(0e0, 4.8e2, 0e0, 4.7e2)
-w25.Position = w21.pos and w7(0e0, w21.pos.X, 0e0, w21.pos.Y) or w7(5e-1, -2.4e2, 5e-1, -2.35e2)
-w25.BackgroundColor3 = w11.bg
-w25.BorderSizePixel = 0e0
-w25.Visible = false
-w25.Active = true
-w9("UICorner", w25).CornerRadius = UDim.new(0e0, 8e0)
-
-local w26 = w9("UIScale", w25)
-w26.Scale = 1e0
-
-local w61 = w9("TextLabel", w25)
-w61.Text = "cLTR Training Calculator"
-w61.Size = w7(0e0, 3e2, 0e0, 3e1)
-w61.Position = w7(0e0, 2e1, 0e0, 1.2e1)
-w61.TextColor3 = w11.wht
-w61.BackgroundTransparency = 1e0
-w61.Font = w10
-w61.TextSize = 1.8e1
-w61.TextXAlignment = Enum.TextXAlignment.Left
-
-local w27 = w9("TextButton", w25)
-w27.Size = w7(0e0, 3e1, 0e0, 3e1)
-w27.Position = w7(1e0, -5e1, 0e0, 1.2e1)
-w27.BackgroundColor3 = w11.red
-w27.Text = "X"
-w27.TextColor3 = w11.wht
-w27.Font = w10
-w27.TextSize = 1.8e1
-w27.AutoButtonColor = false
-w9("UICorner", w27).CornerRadius = UDim.new(0e0, 6e0)
-
-w28 = w9("TextButton", w24)
-w28.Name = "ReopenButton"
-w28.Size = w7(0e0, 5e1, 0e0, 5e1)
-w28.Position = w21.icon and w7(0e0, w21.icon.X, 0e0, w21.icon.Y) or w7(0e0, 1e2, 0e0, 1e2)
-w28.BackgroundColor3 = w11.bg
-w28.Text = "cLTR"
-w28.TextColor3 = w11.wht
-w28.Font = w10
-w28.TextSize = 1.2e1
-w28.Active = true
-w28.AutoButtonColor = false
-w9("UICorner", w28).CornerRadius = UDim.new(1e0, 0e0)
-
-local w29 = w9("UIScale", w28)
-w29.Scale = 1e0
-
-local function w32(a, b)
+local function w36(a, b)
     local c, d, e, f = false, false, nil, nil
     w12(a.InputBegan, function(g)
         if g.UserInputType == Enum.UserInputType.MouseButton1 or g.UserInputType == Enum.UserInputType.Touch then
@@ -324,7 +277,7 @@ local function w32(a, b)
     w12(w2.InputChanged, function(g)
         if c and (g.UserInputType == Enum.UserInputType.MouseMovement or g.UserInputType == Enum.UserInputType.Touch) then
             local h = g.Position - e
-            if math.abs(h.X) > 4e0 or math.abs(h.Y) > 4e0 then d = true end
+            if math.abs(h.X) > 4 or math.abs(h.Y) > 4 then d = true end
             a.Position = w7(f.X.Scale, f.X.Offset + h.X, f.Y.Scale, f.Y.Offset + h.Y)
         end
     end)
@@ -332,54 +285,54 @@ local function w32(a, b)
         if c and (g.UserInputType == Enum.UserInputType.MouseButton1 or g.UserInputType == Enum.UserInputType.Touch) then
             c = false
             if not d and b then b() end
-            w22()
+            w26()
         end
     end)
 end
 
-local function w33()
-    if w30 then return end
-    w30 = true
+local function w37()
+    if w84 then return end
+    w84 = true
     task.spawn(function()
-        if w25.Visible then
-            w31 = true
-            w13(w25, TweenInfo.new(2e-1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Position = w7(w25.Position.X.Scale, w25.Position.X.Offset, w25.Position.Y.Scale, w25.Position.Y.Offset + 2e1),
-                BackgroundTransparency = 1e0
+        if w29.Visible then
+            w85 = true
+            w13(w29, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = w7(w29.Position.X.Scale, w29.Position.X.Offset, w29.Position.Y.Scale, w29.Position.Y.Offset + 20),
+                BackgroundTransparency = 1
             })
-            task.wait(2e-1)
-            w25.Visible = false
-            w31 = false
-            w28.Visible = true
-            w28.Size = w7(0e0, 0e0, 0e0, 0e0)
-            w28.BackgroundTransparency = 1e0
-            w13(w28, TweenInfo.new(3e-1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = w7(0e0, 5e1, 0e0, 5e1),
-                BackgroundTransparency = 0e0
+            task.wait(0.2)
+            w29.Visible = false
+            w85 = false
+            w34.Visible = true
+            w34.Size = w7(0, 0, 0, 0)
+            w34.BackgroundTransparency = 1
+            w13(w34, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = w7(0, 50, 0, 50),
+                BackgroundTransparency = 0
             })
-            task.wait(3e-1)
+            task.wait(0.3)
         else
-            w28.Visible = false
-            w25.Visible = true
-            w25.Size = w7(0e0, 0e0, 0e0, 0e0)
-            w25.BackgroundTransparency = 1e0
-            w13(w25, TweenInfo.new(3e-1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = w7(0e0, 4.8e2, 0e0, 4.7e2),
-                BackgroundTransparency = 0e0
+            w34.Visible = false
+            w29.Visible = true
+            w29.Size = w7(0, 0, 0, 0)
+            w29.BackgroundTransparency = 1
+            w13(w29, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = w7(0, 480, 0, 500),
+                BackgroundTransparency = 0
             })
-            task.wait(3e-1)
+            task.wait(0.3)
         end
-        w30 = false
-        w22()
+        w84 = false
+        w26()
     end)
 end
 
-local function w34(a, b, c)
+local function w38(a, b, c)
     local d = a.Size
     local e, f = false, false
     local function g()
-        local h = e and UDim2.new(d.X.Scale, d.X.Offset - 6e0, d.Y.Scale, d.Y.Offset - 6e0) or d
-        w13(a, TweenInfo.new(e and 1e-1 or 2e-1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        local h = e and UDim2.new(d.X.Scale, d.X.Offset - 6, d.Y.Scale, d.Y.Offset - 6) or d
+        w13(a, TweenInfo.new(e and 0.1 or 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Size = h,
             BackgroundColor3 = e and c or f and c or b
         })
@@ -390,66 +343,138 @@ local function w34(a, b, c)
     w12(a.MouseButton1Up, function() e = false g() end)
 end
 
-w34(w27, w11.red, w11.redH)
-w34(w28, w11.bg, w11.item)
+if w6:FindFirstChild("cLTRCalculators") then
+    w6.cLTRCalculators:Destroy()
+end
 
-local function w35(a, b, c)
+local w28 = w9("ScreenGui")
+w28.Name = "cLTRCalculators"
+w28.ResetOnSpawn = false
+w28.Parent = w6
+w.gui = w28
+
+w29 = w9("Frame", w28)
+w29.Name = "MainFrame"
+w29.Size = w7(0, 480, 0, 500)
+w29.Position = w24.pos and w7(0, w24.pos.X, 0, w24.pos.Y) or w7(0.5, -240, 0.5, -250)
+w29.BackgroundColor3 = w11.bg
+w29.BorderSizePixel = 0
+w29.Visible = false
+w29.Active = true
+w9("UICorner", w29).CornerRadius = UDim.new(0, 8)
+
+local w30 = w9("UIScale", w29)
+w30.Scale = 1
+
+local w31 = w9("TextLabel", w29)
+w31.Text = "cLTR Calculators"
+w31.Size = w7(0, 330, 0, 30)
+w31.Position = w7(0, 60, 0, 12)
+w31.TextColor3 = w11.wht
+w31.BackgroundTransparency = 1
+w31.Font = w10
+w31.TextSize = 18
+w31.TextXAlignment = Enum.TextXAlignment.Left
+
+local w32 = w9("TextButton", w29)
+w32.Text = "<"
+w32.Size = w7(0, 30, 0, 30)
+w32.Position = w7(0, 20, 0, 12)
+w32.BackgroundColor3 = w11.btn
+w32.TextColor3 = w11.wht
+w32.Font = w10
+w32.TextSize = 18
+w32.AutoButtonColor = false
+w32.Visible = false
+w9("UICorner", w32).CornerRadius = UDim.new(0, 6)
+w38(w32, w11.btn, w11.hov)
+
+local w33 = w9("TextButton", w29)
+w33.Text = "X"
+w33.Size = w7(0, 30, 0, 30)
+w33.Position = w7(1, -50, 0, 12)
+w33.BackgroundColor3 = w11.red
+w33.TextColor3 = w11.wht
+w33.Font = w10
+w33.TextSize = 18
+w33.AutoButtonColor = false
+w9("UICorner", w33).CornerRadius = UDim.new(0, 6)
+w38(w33, w11.red, w11.redH)
+
+w34 = w9("TextButton", w28)
+w34.Name = "ReopenButton"
+w34.Size = w7(0, 50, 0, 50)
+w34.Position = w24.icon and w7(0, w24.icon.X, 0, w24.icon.Y) or w7(0, 100, 0, 100)
+w34.BackgroundColor3 = w11.bg
+w34.Text = "cLTR"
+w34.TextColor3 = w11.wht
+w34.Font = w10
+w34.TextSize = 12
+w34.Active = true
+w34.AutoButtonColor = false
+w9("UICorner", w34).CornerRadius = UDim.new(1, 0)
+w38(w34, w11.bg, w11.item)
+
+local w35 = w9("UIScale", w34)
+w35.Scale = 1
+
+local function w39(a, b, c)
     local d = w9("TextButton", a)
     d.Text = b
-    d.Size = w7(1e0, 0e0, 0e0, 3.2e1)
+    d.Size = w7(1, 0, 0, 32)
     d.BackgroundColor3 = w11.item
     d.TextColor3 = w11.wht
     d.Font = w10
-    d.TextSize = 1.8e1
+    d.TextSize = 18
     d.AutoButtonColor = false
-    d.ZIndex = 1e1
-    w34(d, w11.item, w11.prs)
+    d.ZIndex = 10
+    w38(d, w11.item, w11.prs)
     w12(d.MouseButton1Click, function() c(d) end)
     return d
 end
 
-local function w36(a, b, c, d)
+local function w40(a, b, c, d)
     local e = w9("TextLabel", a)
     e.Text = b
-    e.Size = w7(0e0, 1.2e2, 0e0, 3.2e1)
-    e.Position = w7(0e0, 2e1, 0e0, c)
+    e.Size = w7(0, 120, 0, 32)
+    e.Position = w7(0, 20, 0, c)
     e.TextColor3 = w11.wht
-    e.BackgroundTransparency = 1e0
+    e.BackgroundTransparency = 1
     e.Font = w10
-    e.TextSize = 1.8e1
+    e.TextSize = 18
     e.TextXAlignment = Enum.TextXAlignment.Left
 
     local f = w9("TextButton", a)
     f.Text = "Select"
-    f.Size = w7(0e0, 3.2e2, 0e0, 3.2e1)
-    f.Position = w7(0e0, 1.4e2, 0e0, c)
+    f.Size = w7(0, 320, 0, 32)
+    f.Position = w7(0, 140, 0, c)
     f.BackgroundColor3 = w11.btn
     f.TextColor3 = w11.wht
     f.Font = w10
-    f.TextSize = 1.8e1
+    f.TextSize = 18
     f.AutoButtonColor = false
-    w9("UICorner", f).CornerRadius = UDim.new(0e0, 4e0)
-    w34(f, w11.btn, w11.hov)
+    w9("UICorner", f).CornerRadius = UDim.new(0, 4)
+    w38(f, w11.btn, w11.hov)
 
     local g = w9("Frame", a)
-    g.Size = w7(0e0, 3.2e2, 0e0, 1.5e2)
-    g.Position = w7(0e0, 1.4e2, 0e0, c + 3.8e1)
+    g.Size = w7(0, 320, 0, 150)
+    g.Position = w7(0, 140, 0, c + 38)
     g.BackgroundColor3 = w11.drop
     g.Visible = false
-    g.ZIndex = 1e1
-    w9("UICorner", g).CornerRadius = UDim.new(0e0, 4e0)
+    g.ZIndex = 10
+    w9("UICorner", g).CornerRadius = UDim.new(0, 4)
 
     local h = w9("ScrollingFrame", g)
-    h.Size = w7(1e0, 0e0, 1e0, 0e0)
-    h.BackgroundTransparency = 1e0
-    h.ScrollBarThickness = 4e0
-    h.CanvasSize = w7(0e0, 0e0, 0e0, 0e0)
+    h.Size = w7(1, 0, 1, 0)
+    h.BackgroundTransparency = 1
+    h.ScrollBarThickness = 4
+    h.CanvasSize = w7(0, 0, 0, 0)
     h.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    h.ZIndex = 1e1
+    h.ZIndex = 10
 
     local i = w9("UIListLayout", h)
     i.SortOrder = Enum.SortOrder.LayoutOrder
-    i.Padding = UDim.new(0e0, 2e0)
+    i.Padding = UDim.new(0, 2)
 
     table.insert(d, g)
     w12(f.MouseButton1Click, function()
@@ -461,296 +486,499 @@ local function w36(a, b, c, d)
     return f, g, h
 end
 
-local w37 = {}
-local w62
-local w38, w39, w40 = w36(w25, "Category", 5.6e1, w37)
-local w41, w42, w43 = w36(w25, "Area", 1.02e2, w37)
-local w44, w45, w46 = w36(w25, "Multiplier", 1.48e2, w37)
+local w41 = {}
 
-local w54 = w9("TextLabel", w42)
-w54.Size = w7(1e0, 0e0, 1e0, 0e0)
-w54.BackgroundTransparency = 1e0
-w54.Text = "No category to show areas."
-w54.TextColor3 = w11.dim
-w54.Font = w10
-w54.TextSize = 1.6e1
-w54.ZIndex = 1e1
-w43.Visible = false
+local w43 = w9("Frame", w29)
+w43.Name = "HomeView"
+w43.Size = w7(1, 0, 1, 0)
+w43.BackgroundTransparency = 1
 
-local w47 = w9("TextLabel", w25)
-w47.Text = "Current Power"
-w47.Size = w7(0e0, 1.2e2, 0e0, 3.2e1)
-w47.Position = w7(0e0, 2e1, 0e0, 1.94e2)
-w47.TextColor3 = w11.wht
-w47.BackgroundTransparency = 1e0
-w47.Font = w10
-w47.TextSize = 1.8e1
-w47.TextXAlignment = Enum.TextXAlignment.Left
+local w44 = w9("TextLabel", w43)
+w44.Text = "Select a calculator"
+w44.Size = w7(1, -40, 0, 24)
+w44.Position = w7(0, 20, 0, 150)
+w44.TextColor3 = w11.dim
+w44.BackgroundTransparency = 1
+w44.Font = w10
+w44.TextSize = 18
+w44.TextXAlignment = Enum.TextXAlignment.Center
 
-local w48 = w9("TextBox", w25)
-w48.Text = w21.power
-w48.Size = w7(0e0, 3.2e2, 0e0, 3.2e1)
-w48.Position = w7(0e0, 1.4e2, 0e0, 1.94e2)
-w48.BackgroundColor3 = w11.inp
-w48.TextColor3 = w11.wht
-w48.Font = w10
-w48.TextSize = 1.8e1
-w48.ClearTextOnFocus = true
-w48.PlaceholderText = "Enter your current power"
-w48.PlaceholderColor3 = w11.dim
-w9("UICorner", w48).CornerRadius = UDim.new(0e0, 4e0)
-w12(w48.FocusLost, function(a)
+local w45 = w9("TextButton", w43)
+w45.Text = "Farming"
+w45.Size = w7(0, 210, 0, 100)
+w45.Position = w7(0, 20, 0, 210)
+w45.BackgroundColor3 = w11.org
+w45.TextColor3 = w11.wht
+w45.Font = w10
+w45.TextSize = 22
+w45.AutoButtonColor = false
+w9("UICorner", w45).CornerRadius = UDim.new(0, 8)
+w38(w45, w11.org, w11.orgH)
+
+local w46 = w9("TextButton", w43)
+w46.Text = "Tokens"
+w46.Size = w7(0, 210, 0, 100)
+w46.Position = w7(0, 250, 0, 210)
+w46.BackgroundColor3 = w11.cy
+w46.TextColor3 = w11.wht
+w46.Font = w10
+w46.TextSize = 22
+w46.AutoButtonColor = false
+w9("UICorner", w46).CornerRadius = UDim.new(0, 8)
+w38(w46, w11.cy, w11.cyH)
+
+local w47 = w9("Frame", w29)
+w47.Name = "FarmingView"
+w47.Size = w7(1, 0, 1, 0)
+w47.BackgroundTransparency = 1
+w47.Visible = false
+
+local w58
+local w48, w49, w50 = w40(w47, "Category", 56, w41)
+local w51, w52, w53 = w40(w47, "Area", 102, w41)
+local w54, w55, w56 = w40(w47, "Multiplier", 148, w41)
+
+local w57 = w9("TextLabel", w52)
+w57.Size = w7(1, 0, 1, 0)
+w57.BackgroundTransparency = 1
+w57.Text = "No category to show areas."
+w57.TextColor3 = w11.dim
+w57.Font = w10
+w57.TextSize = 16
+w57.ZIndex = 10
+w53.Visible = false
+
+local w59 = w9("TextLabel", w47)
+w59.Text = "Current Power"
+w59.Size = w7(0, 120, 0, 32)
+w59.Position = w7(0, 20, 0, 194)
+w59.TextColor3 = w11.wht
+w59.BackgroundTransparency = 1
+w59.Font = w10
+w59.TextSize = 18
+w59.TextXAlignment = Enum.TextXAlignment.Left
+
+local w60 = w9("TextBox", w47)
+w60.Text = w24.power
+w60.Size = w7(0, 320, 0, 32)
+w60.Position = w7(0, 140, 0, 194)
+w60.BackgroundColor3 = w11.inp
+w60.TextColor3 = w11.wht
+w60.Font = w10
+w60.TextSize = 18
+w60.ClearTextOnFocus = true
+w60.PlaceholderText = "Enter your current power"
+w60.PlaceholderColor3 = w11.dim
+w9("UICorner", w60).CornerRadius = UDim.new(0, 4)
+w12(w60.FocusLost, function(a)
     if a then
-        if w62 then
-            w21.mem[w62] = w21.mem[w62] or {}
-            w21.mem[w62].power = w48.Text
+        if w58 then
+            w24.mem[w58] = w24.mem[w58] or {}
+            w24.mem[w58].power = w60.Text
         else
-            w21.power = w48.Text
+            w24.power = w60.Text
         end
-        w22()
+        w26()
     end
 end)
 
-local w49 = w9("TextButton", w25)
-w49.Size = w7(0e0, 2.1e2, 0e0, 3.2e1)
-w49.Position = w7(0e0, 2e1, 0e0, 2.4e2)
-w49.BackgroundColor3 = w11.btn
-w49.TextColor3 = w11.wht
-w49.Font = w10
-w49.TextSize = 1.8e1
-w49.AutoButtonColor = false
-w9("UICorner", w49).CornerRadius = UDim.new(0e0, 4e0)
+local w61 = w9("TextButton", w47)
+w61.Size = w7(0, 210, 0, 32)
+w61.Position = w7(0, 20, 0, 240)
+w61.BackgroundColor3 = w11.btn
+w61.TextColor3 = w11.wht
+w61.Font = w10
+w61.TextSize = 18
+w61.AutoButtonColor = false
+w9("UICorner", w61).CornerRadius = UDim.new(0, 4)
 
-local w50 = w9("TextButton", w25)
-w50.Size = w7(0e0, 2.1e2, 0e0, 3.2e1)
-w50.Position = w7(0e0, 2.5e2, 0e0, 2.4e2)
-w50.BackgroundColor3 = w11.btn
-w50.TextColor3 = w11.wht
-w50.Font = w10
-w50.TextSize = 1.8e1
-w50.AutoButtonColor = false
-w9("UICorner", w50).CornerRadius = UDim.new(0e0, 4e0)
+local w62 = w9("TextButton", w47)
+w62.Size = w7(0, 210, 0, 32)
+w62.Position = w7(0, 250, 0, 240)
+w62.BackgroundColor3 = w11.btn
+w62.TextColor3 = w11.wht
+w62.Font = w10
+w62.TextSize = 18
+w62.AutoButtonColor = false
+w9("UICorner", w62).CornerRadius = UDim.new(0, 4)
 
-local w52 = w9("TextButton", w25)
-w52.Text = "Calculate"
-w52.Size = w7(0e0, 4.4e2, 0e0, 4e1)
-w52.Position = w7(0e0, 2e1, 0e0, 2.86e2)
-w52.BackgroundColor3 = w11.org
-w52.TextColor3 = w11.wht
-w52.Font = w10
-w52.TextSize = 1.8e1
-w52.AutoButtonColor = false
-w9("UICorner", w52).CornerRadius = UDim.new(0e0, 4e0)
+local function w63()
+    w61.Text = "Speed 2x: " .. (w24.speed and "ON" or "OFF")
+    w61.BackgroundColor3 = w24.speed and w11.cy or w11.btn
+    w62.Text = "Training 2x: " .. (w24.train and "ON" or "OFF")
+    w62.BackgroundColor3 = w24.train and w11.pu or w11.btn
+end
 
-local w53 = w9("TextLabel", w25)
-w53.Text = ""
-w53.Size = w7(0e0, 4.4e2, 0e0, 1.1e2)
-w53.Position = w7(0e0, 2e1, 0e0, 3.4e2)
-w53.TextColor3 = w11.wht
-w53.BackgroundTransparency = 1e0
-w53.Font = w10
-w53.TextSize = 1.6e1
-w53.TextWrapped = true
-w53.TextXAlignment = Enum.TextXAlignment.Left
-w53.TextYAlignment = Enum.TextYAlignment.Top
+w12(w61.MouseButton1Click, function()
+    w24.speed = not w24.speed
+    w63()
+    w26()
+end)
 
-local w55 = {}
-for _, a in ipairs({{1e0, 1.024e3}, {1.024e3, 1.048576e6}, {1.048576e6, 1.6777216e7 + 1e0}}) do
-    local b = a[1e0]
-    while b < a[2e0] do
-        local c = b >= 1.048576e6 and tostring(math.floor(b / 1.048576e6)) .. "M" or b >= 1.024e3 and tostring(math.floor(b / 1.024e3)) .. "k" or tostring(math.floor(b))
-        table.insert(w55, {c, b})
-        b = b * 2e0
+w12(w62.MouseButton1Click, function()
+    w24.train = not w24.train
+    w63()
+    w26()
+end)
+
+local w64 = w9("TextButton", w47)
+w64.Text = "Calculate"
+w64.Size = w7(0, 440, 0, 40)
+w64.Position = w7(0, 20, 0, 286)
+w64.BackgroundColor3 = w11.org
+w64.TextColor3 = w11.wht
+w64.Font = w10
+w64.TextSize = 18
+w64.AutoButtonColor = false
+w9("UICorner", w64).CornerRadius = UDim.new(0, 4)
+
+local w65 = w9("TextLabel", w47)
+w65.Text = ""
+w65.Size = w7(0, 440, 0, 150)
+w65.Position = w7(0, 20, 0, 340)
+w65.TextColor3 = w11.wht
+w65.BackgroundTransparency = 1
+w65.Font = w10
+w65.TextSize = 16
+w65.TextWrapped = true
+w65.TextXAlignment = Enum.TextXAlignment.Left
+w65.TextYAlignment = Enum.TextYAlignment.Top
+
+local w66 = {}
+for _, a in ipairs({{1, 1024}, {1024, 1048576}, {1048576, 16777217}}) do
+    local b = a[1]
+    while b < a[2] do
+        local c = b >= 1048576 and tostring(math.floor(b / 1048576)) .. "M" or b >= 1024 and tostring(math.floor(b / 1024)) .. "k" or tostring(math.floor(b))
+        table.insert(w66, {c, b})
+        b = b * 2
     end
 end
 
-for _, a in ipairs(w55) do
-    w35(w46, a[1e0], function(b)
-        w44.Text = a[1e0]
-        w44:SetAttribute("Val", a[2e0])
-        w45.Visible = false
-        if w62 then
-            w21.mem[w62] = w21.mem[w62] or {}
-            w21.mem[w62].mult = a[1e0]
-            w21.mem[w62].val = a[2e0]
-            w22()
+for _, a in ipairs(w66) do
+    w39(w56, a[1], function()
+        w54.Text = a[1]
+        w54:SetAttribute("Val", a[2])
+        w55.Visible = false
+        if w58 then
+            w24.mem[w58] = w24.mem[w58] or {}
+            w24.mem[w58].mult = a[1]
+            w24.mem[w58].val = a[2]
+            w26()
         end
     end)
 end
 
-local function w65(a)
-    w38.Text = a
-    w39.Visible = false
-    w41.Text = "Select"
-    w41:SetAttribute("Mult", nil)
-    w41:SetAttribute("Min", nil)
-    w41:SetAttribute("Idx", nil)
-    w41:SetAttribute("Boost", nil)
-    w54.Visible = false
-    w43.Visible = true
-    w62 = a
-    w21.cat = a
-    for _, c in ipairs(w43:GetChildren()) do
-        if c:IsA("TextButton") then c:Destroy() end
+local function w67(a)
+    w48.Text = a
+    w49.Visible = false
+    w51.Text = "Select"
+    w51:SetAttribute("Mult", nil)
+    w51:SetAttribute("Min", nil)
+    w51:SetAttribute("Idx", nil)
+    w51:SetAttribute("Boost", nil)
+    w57.Visible = false
+    w53.Visible = true
+    w58 = a
+    w24.cat = a
+    for _, b in ipairs(w53:GetChildren()) do
+        if b:IsA("TextButton") then b:Destroy() end
     end
-    for d, e in ipairs(w18[a]) do
-        local f = not w64[a] or d >= w64[a]
-        w35(w43, w66(e.name, e.req), function(g)
-            w41.Text = g.Text
-            w41:SetAttribute("Mult", e.multi)
-            w41:SetAttribute("Min", e.min)
-            w41:SetAttribute("Idx", d)
-            w41:SetAttribute("Boost", f)
-            w42.Visible = false
-            w21.mem[a] = w21.mem[a] or {}
-            w21.mem[a].area = d
-            w22()
+    for c, d in ipairs(w19[a]) do
+        local e = not w22[a] or c >= w22[a]
+        local f = w18(d.name, d.req)
+        w39(w53, f, function()
+            w51.Text = f
+            w51:SetAttribute("Mult", d.multi)
+            w51:SetAttribute("Min", d.min)
+            w51:SetAttribute("Idx", c)
+            w51:SetAttribute("Boost", e)
+            w52.Visible = false
+            w24.mem[a] = w24.mem[a] or {}
+            w24.mem[a].area = c
+            w26()
         end)
     end
-    local h = w21.mem[a]
-    w44.Text = h and h.mult or "Select"
-    w44:SetAttribute("Val", h and h.val or nil)
-    w48.Text = h and h.power or "0"
-    if h and type(h.area) == "number" and w18[a][h.area] then
-        local i = w18[a][h.area]
-        w41.Text = w66(i.name, i.req)
-        w41:SetAttribute("Mult", i.multi)
-        w41:SetAttribute("Min", i.min)
-        w41:SetAttribute("Idx", h.area)
-        w41:SetAttribute("Boost", not w64[a] or h.area >= w64[a])
+    local g = w24.mem[a]
+    w54.Text = g and g.mult or "Select"
+    w54:SetAttribute("Val", g and g.val or nil)
+    w60.Text = g and g.power or "0"
+    if g and type(g.area) == "number" and w19[a][g.area] then
+        local h = w19[a][g.area]
+        w51.Text = w18(h.name, h.req)
+        w51:SetAttribute("Mult", h.multi)
+        w51:SetAttribute("Min", h.min)
+        w51:SetAttribute("Idx", g.area)
+        w51:SetAttribute("Boost", not w22[a] or g.area >= w22[a])
     end
-    w22()
+    w26()
 end
 
-for _, a in ipairs(w19) do
-    w35(w40, a, function() w65(a) end)
+for _, a in ipairs(w20) do
+    w39(w50, a, function() w67(a) end)
 end
 
-if w21.cat and w18[w21.cat] then
-    w65(w21.cat)
+if w24.cat and w19[w24.cat] then
+    w67(w24.cat)
 end
 
-local function w51()
-    w49.Text = "Speed 2x: " .. (w21.speed and "ON" or "OFF")
-    w49.BackgroundColor3 = w21.speed and w11.cy or w11.btn
-    w50.Text = "Training 2x: " .. (w21.train and "ON" or "OFF")
-    w50.BackgroundColor3 = w21.train and w11.pu or w11.btn
-end
-
-w12(w49.MouseButton1Click, function()
-    w21.speed = not w21.speed
-    w51()
-    w22()
-end)
-
-w12(w50.MouseButton1Click, function()
-    w21.train = not w21.train
-    w51()
-    w22()
-end)
-
-w12(w52.MouseButton1Click, function()
-    local a = w41:GetAttribute("Mult")
-    local b = w41:GetAttribute("Idx")
+w12(w64.MouseButton1Click, function()
+    local a = w51:GetAttribute("Mult")
+    local b = w51:GetAttribute("Idx")
     if not a or not b then
-        w53.Text = "Select an area."
+        w65.Text = "Select an area."
         return
     end
-    local c = w44:GetAttribute("Val")
+    local c = w54:GetAttribute("Val")
     if not c then
-        w53.Text = "Select a multiplier."
+        w65.Text = "Select a multiplier."
         return
     end
     local d = w16(a)
     if not d then
-        w53.Text = "Unknown area multiplier."
+        w65.Text = "Unknown area multiplier."
         return
     end
-    local e = w41:GetAttribute("Boost")
+    local e = w51:GetAttribute("Boost")
     local f = nil
-    if w18[w38.Text][b + 1e0] then
-        local g = w18[w38.Text][b + 1e0]
-        f = w16(w38.Text == "BT" and g.min or g.req)
+    if w19[w48.Text][b + 1] then
+        local g = w19[w48.Text][b + 1]
+        f = w16(w48.Text == "BT" and g.min or g.req)
     end
     local h = d * c
-    if w21.train and e then h = h * 2e0 end
-    local i = f and math.max(0e0, f - (w16(w48.Text) or 0e0)) or 0e0
-    local j = f and i / h or 0e0
-    if w21.speed and e then j = j / 2e0 end
+    if w24.train and e then h = h * 2 end
+    local i = f and math.max(0, f - (w16(w60.Text) or 0)) or 0
+    local j = f and i / h or 0
+    if w24.speed and e then j = j / 2 end
     local k = f and "Estimated time to next area: " .. w17(j) or "Last area selected."
-    w53.Text = "Production per second: " .. w15(h) ..
-        "\nPer minute: " .. w15(h * 6e1) ..
-        "\nPer hour: " .. w15(h * 3.6e3) ..
-        "\nPer day: " .. w15(h * 8.64e4) ..
+    w65.Text = "Production per second: " .. w15(h) ..
+        "\nPer minute: " .. w15(h * 60) ..
+        "\nPer hour: " .. w15(h * 3600) ..
+        "\nPer day: " .. w15(h * 86400) ..
         "\n" .. k
 end)
 
-w34(w52, w11.org, w11.orgH)
+w38(w64, w11.org, w11.orgH)
 
-local function w56()
-    return workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1.92e3, 1.08e3)
+local w69 = w9("Frame", w29)
+w69.Name = "TokensView"
+w69.Size = w7(1, 0, 1, 0)
+w69.BackgroundTransparency = 1
+w69.Visible = false
+
+local function w68(a, b, c, d)
+    local e = w9("TextLabel", w69)
+    e.Text = a
+    e.Size = w7(0, 120, 0, 32)
+    e.Position = w7(0, 20, 0, b)
+    e.TextColor3 = w11.wht
+    e.BackgroundTransparency = 1
+    e.Font = w10
+    e.TextSize = 18
+    e.TextXAlignment = Enum.TextXAlignment.Left
+
+    local f = w9("TextBox", w69)
+    f.Text = w24.tok[d]
+    f.Size = w7(0, 320, 0, 32)
+    f.Position = w7(0, 140, 0, b)
+    f.BackgroundColor3 = w11.inp
+    f.TextColor3 = w11.wht
+    f.Font = w10
+    f.TextSize = 18
+    f.ClearTextOnFocus = true
+    f.PlaceholderText = c
+    f.PlaceholderColor3 = w11.dim
+    w9("UICorner", f).CornerRadius = UDim.new(0, 4)
+
+    w12(f.FocusLost, function(g)
+        if g then
+            w24.tok[d] = f.Text
+            w26()
+        end
+    end)
+
+    return f
 end
 
-local function w57()
-    local a = w56()
-    return math.clamp(math.min(a.X / 1.92e3, a.Y / 1.08e3), 7.5e-1, 1.2e0)
+local w70 = w68("Tokens", 56, "Enter your tokens", "tokens")
+local w71 = w68("TPM", 102, "Enter your TPM", "tpm")
+local w72 = w68("Objective", 148, "Enter your objective", "obj")
+local w86 = w68("TPM Objective", 194, "Enter your TPM objective", "tpo")
+
+local w73 = w9("TextLabel", w69)
+w73.Text = "Passive growth: +1 TPM every 4H -- +6 TPM per day"
+w73.Size = w7(0, 440, 0, 32)
+w73.Position = w7(0, 20, 0, 240)
+w73.TextColor3 = w11.dim
+w73.BackgroundTransparency = 1
+w73.Font = w10
+w73.TextSize = 16
+w73.TextXAlignment = Enum.TextXAlignment.Left
+
+local w74 = w9("TextButton", w69)
+w74.Text = "Calculate"
+w74.Size = w7(0, 440, 0, 40)
+w74.Position = w7(0, 20, 0, 286)
+w74.BackgroundColor3 = w11.org
+w74.TextColor3 = w11.wht
+w74.Font = w10
+w74.TextSize = 18
+w74.AutoButtonColor = false
+w9("UICorner", w74).CornerRadius = UDim.new(0, 4)
+
+local w75 = w9("TextLabel", w69)
+w75.Text = ""
+w75.Size = w7(0, 440, 0, 150)
+w75.Position = w7(0, 20, 0, 340)
+w75.TextColor3 = w11.wht
+w75.BackgroundTransparency = 1
+w75.Font = w10
+w75.TextSize = 16
+w75.TextWrapped = true
+w75.TextXAlignment = Enum.TextXAlignment.Left
+w75.TextYAlignment = Enum.TextYAlignment.Top
+
+local function w76(a, b, c)
+    local d = math.floor(c / 240)
+    local e = c - d * 240
+    return a + b * c + 240 * d * (d - 1) / 2 + e * d
 end
 
-local function w58()
-    local a = w57()
-    w26.Scale = a
-    w29.Scale = a
+local function w77(a, b, c)
+    local d = c - a
+    if d <= 0 then return 0 end
+    if b <= 0 then return nil end
+    local e = 240 * (-b + math.sqrt(b * b + d / 120))
+    local f = math.max(1, math.ceil(e))
+    while w76(a, b, f) < c do f = f * 2 end
+    local g = 0
+    while g < f do
+        local h = math.floor((g + f) / 2)
+        if w76(a, b, h) < c then g = h + 1 else f = h end
+    end
+    return g
+end
+
+w12(w74.MouseButton1Click, function()
+    local a = w16(w70.Text)
+    local b = w16(w71.Text)
+    local c = w16(w72.Text)
+    local d = w16(w86.Text)
+    local e, f = nil, nil
+    if c then
+        if not a then
+            e = "Token objective: enter valid tokens."
+        elseif not b or b <= 0 then
+            e = "Token objective: enter a TPM above 0."
+        elseif c <= a then
+            e = "Token objective: you already have more than that! Put another value."
+        else
+            local g = w77(a, b, c)
+            e = "Token objective -- Remaining: " .. w15(c - a) ..
+                "\nEstimated time: " .. w17(g * 60) ..
+                "\nTPM on arrival: " .. w15(b + math.floor(g / 240))
+        end
+    end
+    if d then
+        if not b then
+            f = "TPM objective: enter a valid TPM."
+        elseif d <= b then
+            f = "TPM objective: you already have more than that! Put another value."
+        else
+            local g = (d - b) * 240
+            f = "TPM objective -- TPM to gain: " .. w15(d - b) ..
+                "\nEstimated time: " .. w17(g * 60)
+            if a then
+                f = f .. "\nTokens by then: " .. w15(w76(a, b, g))
+            else
+                f = f .. "\nTokens gained: " .. w15(w76(0, b, g))
+            end
+        end
+    end
+    w75.Text = e and (f and e .. "\n-- --\n" .. f or e) or (f or "Fill TPM and at least one objective to calculate.")
+end)
+
+w38(w74, w11.org, w11.orgH)
+
+local function w42(a)
+    for _, b in ipairs(w41) do b.Visible = false end
+    w43.Visible = a == "Home"
+    w47.Visible = a == "Farming"
+    w69.Visible = a == "Tokens"
+    w32.Visible = a ~= "Home"
+    w31.Text = a == "Home" and "cLTR Calculators" or "cLTR " .. a
+    w24.view = a
+    w26()
+end
+
+w12(w45.MouseButton1Click, function() w42("Farming") end)
+w12(w46.MouseButton1Click, function() w42("Tokens") end)
+w12(w32.MouseButton1Click, function() w42("Home") end)
+
+local w78
+pcall(function() w78 = Enum.KeyCode[w24.key] end)
+
+w12(w2.InputBegan, function(a, b)
+    if b or w84 or w85 or not w78 or a.KeyCode ~= w78 then return end
+    w37()
+end)
+
+local function w79()
+    return workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
+end
+
+local function w80()
+    local a = w79()
+    return math.clamp(math.min(a.X / 1920, a.Y / 1080), 0.75, 1.2)
+end
+
+local function w81()
+    local a = w80()
+    w30.Scale = a
+    w35.Scale = a
     return a
 end
 
-local function w59(a)
-    local b = w58()
-    local c = w56()
-    local d = 4.8e2 * b
-    local e = 4.7e2 * b
-    local f = 5e1 * b
-    local g, h = w21.pos and not a, w21.icon and not a
-    w25.Position = g and w7(
-        0e0, math.clamp(w21.pos.X, 0e0, math.max(0e0, c.X - d)),
-        0e0, math.clamp(w21.pos.Y, 0e0, math.max(0e0, c.Y - e))
-    ) or w7(0e0, math.max(0e0, (c.X - d) / 2e0), 0e0, math.max(0e0, (c.Y - e) / 2e0))
-    w28.Position = h and w7(
-        0e0, math.clamp(w21.icon.X, 0e0, math.max(0e0, c.X - f)),
-        0e0, math.clamp(w21.icon.Y, 0e0, math.max(0e0, c.Y - f))
-    ) or w7(0e0, math.max(0e0, 2e1 * b), 0e0, math.max(0e0, math.min(3e1 * b, c.Y - f)))
+local function w82(a)
+    local b = w81()
+    local c = w79()
+    local d = 480 * b
+    local e = 500 * b
+    local f = 50 * b
+    local g, h = w24.pos and not a, w24.icon and not a
+    w29.Position = g and w7(
+        0, math.clamp(w24.pos.X, 0, math.max(0, c.X - d)),
+        0, math.clamp(w24.pos.Y, 0, math.max(0, c.Y - e))
+    ) or w7(0, math.max(0, (c.X - d) / 2), 0, math.max(0, (c.Y - e) / 2))
+    w34.Position = h and w7(
+        0, math.clamp(w24.icon.X, 0, math.max(0, c.X - f)),
+        0, math.clamp(w24.icon.Y, 0, math.max(0, c.Y - f))
+    ) or w7(0, math.max(0, 20 * b), 0, math.max(0, math.min(30 * b, c.Y - f)))
     if a then
-        w21.pos = nil
-        w21.icon = nil
-        w22(true)
+        w24.pos = nil
+        w24.icon = nil
+        w26(true)
     end
 end
 
-local function w68()
-    if os.clock() - w67 < 5e0 then
-        w59()
+local function w83()
+    if os.clock() - w27 < 5 then
+        w82()
     else
-        w59(true)
+        w82(true)
     end
 end
 
-w12(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"), w68)
+w12(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"), w83)
 w12(workspace:GetPropertyChangedSignal("CurrentCamera"), function()
     if workspace.CurrentCamera then
-        w12(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"), w68)
+        w12(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"), w83)
     end
 end)
 
-w32(w25, nil)
-w32(w28, w33)
-w12(w27.MouseButton1Click, w33)
+w36(w29, nil)
+w36(w34, w37)
+w12(w33.MouseButton1Click, w37)
 
-local w60
-pcall(function() w60 = Enum.KeyCode[w21.key] end)
-
-w12(w2.InputBegan, function(a, b)
-    if b or w30 or w31 or not w60 or a.KeyCode ~= w60 then return end
-    w33()
-end)
-
-w51()
-w59()
+w63()
+w42(w24.view)
+w82()
