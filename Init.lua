@@ -207,27 +207,37 @@ end
 local function wpm(a)
         if a then
                 w32("PP", function()
-                        task.wait(1)
-                        for _ = 1, 12 do
-                                if w22.stat ~= "PsychicPower" then return end
-                                local b = w16.Character
-                                if b and b:FindFirstChild("Meditate") then
-                                        w37("Psychic Power \xe2\x80\x94 Meditating", w5(170, 120, 255))
-                                        return
-                                end
-                                local c = w16:FindFirstChild("Backpack")
-                                local d = c and c:FindFirstChild("Meditate")
-                                if d then
-                                        local e = b and b:FindFirstChildOfClass("Humanoid")
-                                        if e then
-                                                e:EquipTool(d)
+                        task.wait(0.4)
+                        local b
+                        while w22.stat == "PsychicPower" do
+                                local c = w16.Character
+                                local d = c and c:FindFirstChildOfClass("Humanoid")
+                                local e = c and c:FindFirstChild("Meditate")
+                                local f = w16:FindFirstChild("Backpack")
+                                local g = f and f:FindFirstChild("Meditate")
+                                if e then
+                                        if b ~= 0 then
+                                                b = 0
                                                 w37("Psychic Power \xe2\x80\x94 Meditating", w5(170, 120, 255))
-                                                return
                                         end
+                                        task.wait(0.5)
+                                elseif g and d and d.Health > 0 then
+                                        if b ~= 1 then
+                                                b = 1
+                                                w37("Psychic Power \xe2\x80\x94 Re-equipping Meditate", w5(170, 120, 255))
+                                        end
+                                        pcall(d.EquipTool, d, g)
+                                        task.wait(0.3)
+                                elseif not g then
+                                        if b ~= 2 then
+                                                b = 2
+                                                w37("Psychic Power \xe2\x80\x94 Meditate tool not found", w5(255, 150, 80))
+                                        end
+                                        task.wait(0.4)
+                                else
+                                        task.wait(0.4)
                                 end
-                                task.wait(0.25)
                         end
-                        w37("Psychic Power \xe2\x80\x94 Meditate tool not found", w5(255, 150, 80))
                 end)
         else
                 w31("PP")
@@ -375,6 +385,21 @@ local function w41(a)
                 if g[1] == e then return f * g[2] end
         end
         return f
+end
+
+local function wab(a)
+        local b = tonumber(a)
+        if not b then return tostring(a) end
+        if b < 1000 then return string.format("%g", b) end
+        local c, d
+        for _, e in ipairs(w40) do
+                if b >= e[2] then c, d = e[1], e[2] end
+        end
+        local f = b / d
+        local g = f >= 100 and 0 or f >= 10 and 1 or 2
+        local h = string.format("%." .. g .. "f", f)
+        if h:find("%.") then h = h:gsub("0+$", ""):gsub("%.$", "") end
+        return h .. c
 end
 
 local w38n = {}
@@ -1202,7 +1227,7 @@ do
                                 local v, x = w47(u)
                                 if v then
                                         w94.anchor = x
-                                        w94.status.Text = e[k] .. " \xe2\x80\x94 Area: " .. t .. " (req " .. w38[k][t].req .. ")"
+                                        w94.status.Text = e[k] .. " \xe2\x80\x94 Area: " .. t .. " (req " .. w38[k][t].req .. " --> " .. wab(w38[k][t].req) .. ")"
                                         w37(e[k] .. " \xe2\x80\x94 " .. t, w5(80, 220, 120))
                                 else
                                         w94.status.Text = "Teleport failed!"
@@ -1309,7 +1334,7 @@ do
                         if aq then
                                 w94.anchor = ar
                                 local as = aj == "n" and "Next" or "Current"
-                                w94.status.Text = "Body Toughness (" .. as .. ") \xe2\x80\x94 Area: " .. ao .. " (req " .. w38.BodyToughness[ao].req .. ")"
+                                w94.status.Text = "Body Toughness (" .. as .. ") \xe2\x80\x94 Area: " .. ao .. " (req " .. w38.BodyToughness[ao].req .. " --> " .. wab(w38.BodyToughness[ao].req) .. ")"
                                 w37("BT " .. as .. " \xe2\x80\x94 " .. ao, w5(80, 220, 120))
                         else
                                 w94.status.Text = "Teleport failed!"
@@ -1802,9 +1827,9 @@ if a0 then
                                                         w94.anchor = g
                                                         if a == "BodyToughness" and w22.mode then
                                                                 local h = w22.mode == "n" and "Next" or "Current"
-                                                                w94.status.Text = w94.names[a] .. " (" .. h .. ") \xe2\x80\x94 Area: " .. d .. " (req " .. w38[a][d].req .. ")"
+                                                                w94.status.Text = w94.names[a] .. " (" .. h .. ") \xe2\x80\x94 Area: " .. d .. " (req " .. w38[a][d].req .. " --> " .. wab(w38[a][d].req) .. ")"
                                                         else
-                                                                w94.status.Text = w94.names[a] .. " \xe2\x80\x94 Area: " .. d .. " (req " .. w38[a][d].req .. ")"
+                                                                w94.status.Text = w94.names[a] .. " \xe2\x80\x94 Area: " .. d .. " (req " .. w38[a][d].req .. " --> " .. wab(w38[a][d].req) .. ")"
                                                         end
                                                 end
                                         end
@@ -1855,9 +1880,9 @@ w33(w1.Heartbeat, function()
                                 w94.anchor = h
                                 if w22.stat == "BodyToughness" and w22.mode then
                                         local i = w22.mode == "n" and "Next" or "Current"
-                                        w94.status.Text = w94.names[w22.stat] .. " (" .. i .. ") \xe2\x80\x94 Area: " .. e .. " (req " .. w38[w22.stat][e].req .. ")"
+                                        w94.status.Text = w94.names[w22.stat] .. " (" .. i .. ") \xe2\x80\x94 Area: " .. e .. " (req " .. w38[w22.stat][e].req .. " --> " .. wab(w38[w22.stat][e].req) .. ")"
                                 else
-                                        w94.status.Text = w94.names[w22.stat] .. " \xe2\x80\x94 Area: " .. e .. " (req " .. w38[w22.stat][e].req .. ")"
+                                        w94.status.Text = w94.names[w22.stat] .. " \xe2\x80\x94 Area: " .. e .. " (req " .. w38[w22.stat][e].req .. " --> " .. wab(w38[w22.stat][e].req) .. ")"
                                 end
                         end
                 end
