@@ -204,21 +204,38 @@ local function w37(a, b)
         end
 end
 
-local wP = { "Meditation_Request", true }
-local wQ = { "Meditation_Request", false }
-
 local function wpm(a)
         if a then
                 w32("PP", function()
                         task.wait(1)
-                        if w22.stat == "PsychicPower" then
-                                wfr(wP)
-                                w37("Psychic Power \xe2\x80\x94 Meditating", w5(170, 120, 255))
+                        for _ = 1, 12 do
+                                if w22.stat ~= "PsychicPower" then return end
+                                local b = w16.Character
+                                if b and b:FindFirstChild("Meditate") then
+                                        w37("Psychic Power \xe2\x80\x94 Meditating", w5(170, 120, 255))
+                                        return
+                                end
+                                local c = w16:FindFirstChild("Backpack")
+                                local d = c and c:FindFirstChild("Meditate")
+                                if d then
+                                        local e = b and b:FindFirstChildOfClass("Humanoid")
+                                        if e then
+                                                e:EquipTool(d)
+                                                w37("Psychic Power \xe2\x80\x94 Meditating", w5(170, 120, 255))
+                                                return
+                                        end
+                                end
+                                task.wait(0.25)
                         end
+                        w37("Psychic Power \xe2\x80\x94 Meditate tool not found", w5(255, 150, 80))
                 end)
         else
                 w31("PP")
-                wfr(wQ)
+                local b = w16.Character
+                if b and b:FindFirstChild("Meditate") then
+                        local c = b:FindFirstChildOfClass("Humanoid")
+                        if c then c:UnequipTools() end
+                end
         end
 end
 
