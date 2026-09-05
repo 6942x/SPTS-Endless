@@ -215,45 +215,55 @@ local w84, w85 = false, false
 local w27 = os.clock()
 
 local function w25()
-    if not readfile or not isfile(w23) then return end
-    local a, b = pcall(function() return w4:JSONDecode(readfile(w23)) end)
-    if a and type(b) == "table" then
-        w24.key = b.key or "G"
-        if type(b.pos) == "table" and type(b.pos.X) == "number" and type(b.pos.Y) == "number" then
-            w24.pos = b.pos
+    if not readfile then return end
+    local a, b = pcall(function()
+        if isfile and not isfile(w23) then return end
+        return readfile(w23)
+    end)
+    if not a or not b then return end
+    local c, d = pcall(function() return w4:JSONDecode(b) end)
+    if c and type(d) == "table" then
+        w24.key = d.key or "G"
+        if type(d.pos) == "table" and type(d.pos.X) == "number" and type(d.pos.Y) == "number" then
+            w24.pos = d.pos
         end
-        if type(b.icon) == "table" and type(b.icon.X) == "number" and type(b.icon.Y) == "number" then
-            w24.icon = b.icon
+        if type(d.icon) == "table" and type(d.icon.X) == "number" and type(d.icon.Y) == "number" then
+            w24.icon = d.icon
         end
-        w24.speed = b.speed or false
-        w24.train = b.train or false
-        w24.power = b.power or "0"
-        w24.cat = b.cat
-        if b.view == "Farming" or b.view == "Tokens" then
-            w24.view = b.view
+        w24.speed = d.speed or false
+        w24.train = d.train or false
+        w24.power = d.power or "0"
+        w24.cat = d.cat
+        if d.view == "Farming" or d.view == "Tokens" then
+            w24.view = d.view
         end
-        if type(b.mem) == "table" then
+        if type(d.mem) == "table" then
             w24.mem = {}
-            for c, d in pairs(b.mem) do
-                if type(d) == "table" then
-                    d.val = tonumber(d.val)
-                    d.area = tonumber(d.area)
-                    w24.mem[c] = d
+            for e, f in pairs(d.mem) do
+                if type(f) == "table" then
+                    f.val = tonumber(f.val)
+                    f.area = tonumber(f.area)
+                    if f.mult ~= nil then f.mult = tostring(f.mult) end
+                    if f.power ~= nil then f.power = tostring(f.power) end
+                    if f.pobj ~= nil then f.pobj = tostring(f.pobj) end
+                    w24.mem[e] = f
                 end
             end
         end
-        if type(b.tok) == "table" then
-            w24.tok.tokens = tostring(b.tok.tokens or "")
-            w24.tok.tpm = tostring(b.tok.tpm or "")
-            w24.tok.obj = tostring(b.tok.obj or "")
-            w24.tok.tpo = tostring(b.tok.tpo or "")
+        if type(d.tok) == "table" then
+            w24.tok.tokens = tostring(d.tok.tokens or "")
+            w24.tok.tpm = tostring(d.tok.tpm or "")
+            w24.tok.obj = tostring(d.tok.obj or "")
+            w24.tok.tpo = tostring(d.tok.tpo or "")
         end
     end
 end
 
 w26 = function(a)
     if not writefile then return end
-    if not isfolder("TrainingCalc") then makefolder("TrainingCalc") end
+    if not isfolder or not isfolder("TrainingCalc") then
+        pcall(function() makefolder("TrainingCalc") end)
+    end
     if not a and os.clock() - w27 >= 5 then
         if w29 and w29.Visible and not w85 then
             w24.pos = {X = w29.Position.X.Offset, Y = w29.Position.Y.Offset}
@@ -317,7 +327,7 @@ local function w37()
             w29.Size = w7(0, 0, 0, 0)
             w29.BackgroundTransparency = 1
             w13(w29, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = w7(0, 480, 0, 500),
+                Size = w7(0, 480, 0, 546),
                 BackgroundTransparency = 0
             })
             task.wait(0.3)
@@ -355,8 +365,8 @@ w.gui = w28
 
 w29 = w9("Frame", w28)
 w29.Name = "MainFrame"
-w29.Size = w7(0, 480, 0, 500)
-w29.Position = w24.pos and w7(0, w24.pos.X, 0, w24.pos.Y) or w7(0.5, -240, 0.5, -250)
+w29.Size = w7(0, 480, 0, 546)
+w29.Position = w24.pos and w7(0, w24.pos.X, 0, w24.pos.Y) or w7(0.5, -240, 0.5, -273)
 w29.BackgroundColor3 = w11.bg
 w29.BorderSizePixel = 0
 w29.Visible = false
@@ -436,7 +446,7 @@ end
 local function w40(a, b, c, d)
     local e = w9("TextLabel", a)
     e.Text = b
-    e.Size = w7(0, 120, 0, 32)
+    e.Size = w7(0, 130, 0, 32)
     e.Position = w7(0, 20, 0, c)
     e.TextColor3 = w11.wht
     e.BackgroundTransparency = 1
@@ -446,8 +456,8 @@ local function w40(a, b, c, d)
 
     local f = w9("TextButton", a)
     f.Text = "Select"
-    f.Size = w7(0, 320, 0, 32)
-    f.Position = w7(0, 140, 0, c)
+    f.Size = w7(0, 310, 0, 32)
+    f.Position = w7(0, 150, 0, c)
     f.BackgroundColor3 = w11.btn
     f.TextColor3 = w11.wht
     f.Font = w10
@@ -457,8 +467,8 @@ local function w40(a, b, c, d)
     w38(f, w11.btn, w11.hov)
 
     local g = w9("Frame", a)
-    g.Size = w7(0, 320, 0, 150)
-    g.Position = w7(0, 140, 0, c + 38)
+    g.Size = w7(0, 310, 0, 150)
+    g.Position = w7(0, 150, 0, c + 38)
     g.BackgroundColor3 = w11.drop
     g.Visible = false
     g.ZIndex = 10
@@ -550,7 +560,7 @@ w53.Visible = false
 
 local w59 = w9("TextLabel", w47)
 w59.Text = "Current Power"
-w59.Size = w7(0, 120, 0, 32)
+w59.Size = w7(0, 130, 0, 32)
 w59.Position = w7(0, 20, 0, 194)
 w59.TextColor3 = w11.wht
 w59.BackgroundTransparency = 1
@@ -560,31 +570,59 @@ w59.TextXAlignment = Enum.TextXAlignment.Left
 
 local w60 = w9("TextBox", w47)
 w60.Text = w24.power
-w60.Size = w7(0, 320, 0, 32)
-w60.Position = w7(0, 140, 0, 194)
+w60.Size = w7(0, 310, 0, 32)
+w60.Position = w7(0, 150, 0, 194)
 w60.BackgroundColor3 = w11.inp
 w60.TextColor3 = w11.wht
 w60.Font = w10
 w60.TextSize = 18
-w60.ClearTextOnFocus = true
+w60.ClearTextOnFocus = false
 w60.PlaceholderText = "Enter your current power"
 w60.PlaceholderColor3 = w11.dim
 w9("UICorner", w60).CornerRadius = UDim.new(0, 4)
-w12(w60.FocusLost, function(a)
-    if a then
-        if w58 then
-            w24.mem[w58] = w24.mem[w58] or {}
-            w24.mem[w58].power = w60.Text
-        else
-            w24.power = w60.Text
-        end
+w12(w60.FocusLost, function()
+    if w58 then
+        w24.mem[w58] = w24.mem[w58] or {}
+        w24.mem[w58].power = w60.Text
+    else
+        w24.power = w60.Text
+    end
+    w26()
+end)
+
+local w87 = w9("TextLabel", w47)
+w87.Text = "Power Objective"
+w87.Size = w7(0, 130, 0, 32)
+w87.Position = w7(0, 20, 0, 240)
+w87.TextColor3 = w11.wht
+w87.BackgroundTransparency = 1
+w87.Font = w10
+w87.TextSize = 16
+w87.TextXAlignment = Enum.TextXAlignment.Left
+
+local w88 = w9("TextBox", w47)
+w88.Text = ""
+w88.Size = w7(0, 310, 0, 32)
+w88.Position = w7(0, 150, 0, 240)
+w88.BackgroundColor3 = w11.inp
+w88.TextColor3 = w11.wht
+w88.Font = w10
+w88.TextSize = 18
+w88.ClearTextOnFocus = false
+w88.PlaceholderText = "Enter your power objective"
+w88.PlaceholderColor3 = w11.dim
+w9("UICorner", w88).CornerRadius = UDim.new(0, 4)
+w12(w88.FocusLost, function()
+    if w58 then
+        w24.mem[w58] = w24.mem[w58] or {}
+        w24.mem[w58].pobj = w88.Text
         w26()
     end
 end)
 
 local w61 = w9("TextButton", w47)
 w61.Size = w7(0, 210, 0, 32)
-w61.Position = w7(0, 20, 0, 240)
+w61.Position = w7(0, 20, 0, 286)
 w61.BackgroundColor3 = w11.btn
 w61.TextColor3 = w11.wht
 w61.Font = w10
@@ -594,7 +632,7 @@ w9("UICorner", w61).CornerRadius = UDim.new(0, 4)
 
 local w62 = w9("TextButton", w47)
 w62.Size = w7(0, 210, 0, 32)
-w62.Position = w7(0, 250, 0, 240)
+w62.Position = w7(0, 250, 0, 286)
 w62.BackgroundColor3 = w11.btn
 w62.TextColor3 = w11.wht
 w62.Font = w10
@@ -624,7 +662,7 @@ end)
 local w64 = w9("TextButton", w47)
 w64.Text = "Calculate"
 w64.Size = w7(0, 440, 0, 40)
-w64.Position = w7(0, 20, 0, 286)
+w64.Position = w7(0, 20, 0, 332)
 w64.BackgroundColor3 = w11.org
 w64.TextColor3 = w11.wht
 w64.Font = w10
@@ -632,10 +670,20 @@ w64.TextSize = 18
 w64.AutoButtonColor = false
 w9("UICorner", w64).CornerRadius = UDim.new(0, 4)
 
-local w65 = w9("TextLabel", w47)
+local w89 = w9("ScrollingFrame", w47)
+w89.Size = w7(0, 440, 0, 150)
+w89.Position = w7(0, 20, 0, 386)
+w89.BackgroundTransparency = 1
+w89.ScrollBarThickness = 4
+w89.CanvasSize = w7(0, 0, 0, 0)
+w89.AutomaticCanvasSize = Enum.AutomaticSize.Y
+w89.BorderSizePixel = 0
+
+local w65 = w9("TextLabel", w89)
 w65.Text = ""
-w65.Size = w7(0, 440, 0, 150)
-w65.Position = w7(0, 20, 0, 340)
+w65.Size = w7(1, -8, 0, 0)
+w65.Position = w7(0, 4, 0, 4)
+w65.AutomaticSize = Enum.AutomaticSize.Y
 w65.TextColor3 = w11.wht
 w65.BackgroundTransparency = 1
 w65.Font = w10
@@ -702,6 +750,7 @@ local function w67(a)
     w54.Text = g and g.mult or "Select"
     w54:SetAttribute("Val", g and g.val or nil)
     w60.Text = g and g.power or "0"
+    w88.Text = g and g.pobj or ""
     if g and type(g.area) == "number" and w19[a][g.area] then
         local h = w19[a][g.area]
         w51.Text = w18(h.name, h.req)
@@ -721,6 +770,15 @@ if w24.cat and w19[w24.cat] then
     w67(w24.cat)
 end
 
+local function w91(a, b)
+    local d = 1
+    for e, f in ipairs(w19[a]) do
+        local g = w16(f.req)
+        if g and g <= b then d = e else break end
+    end
+    return d
+end
+
 w12(w64.MouseButton1Click, function()
     local a = w51:GetAttribute("Mult")
     local b = w51:GetAttribute("Idx")
@@ -731,6 +789,56 @@ w12(w64.MouseButton1Click, function()
     local c = w54:GetAttribute("Val")
     if not c then
         w65.Text = "Select a multiplier."
+        return
+    end
+    if w88.Text ~= "" then
+        local d = w16(w88.Text)
+        if not d or d <= 0 then
+            w65.Text = "Power objective: enter a valid value above 0."
+            return
+        end
+        local e = w16(w60.Text)
+        if not e or e <= 0 then
+            e = w16(w19[w48.Text][b].req) or 0
+        end
+        if d <= e then
+            w65.Text = "Power objective: you already have more than that! Put another value."
+            return
+        end
+        local st = e
+        local f, g, h = 0, {}, false
+        local function i(m, n)
+            local o = w91(w48.Text, m)
+            local p = w19[w48.Text][o]
+            local q = w16(p.multi)
+            local r = not w22[w48.Text] or o >= w22[w48.Text]
+            if not q then
+                h = true
+                g[#g + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): ?"
+                return
+            end
+            local s = q * c
+            if w24.train and r then s = s * 2 end
+            local t = (n - m) / s
+            if w24.speed and r then t = t / 2 end
+            f = f + t
+            g[#g + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): " .. w17(t)
+        end
+        for j = 1, #w19[w48.Text] do
+            local k = w19[w48.Text][j]
+            local l = w16(w48.Text == "BT" and k.min or k.req)
+            if l and l > e and l <= d then
+                i(e, l)
+                e = l
+            end
+        end
+        if d > e then
+            i(e, d)
+        end
+        w65.Text = "Power objective -- " .. w15(st) .. " to " .. w15(d) .. " -- Total: " .. (h and "?" or w17(f)) ..
+            "\n" .. table.concat(g, "\n") ..
+            (h and "\n-- ? = unknown area multiplier" or "")
+        w89.CanvasPosition = Vector2.new(0, 0)
         return
     end
     local d = w16(a)
@@ -755,6 +863,7 @@ w12(w64.MouseButton1Click, function()
         "\nPer hour: " .. w15(h * 3600) ..
         "\nPer day: " .. w15(h * 86400) ..
         "\n" .. k
+    w89.CanvasPosition = Vector2.new(0, 0)
 end)
 
 w38(w64, w11.org, w11.orgH)
@@ -768,32 +877,30 @@ w69.Visible = false
 local function w68(a, b, c, d)
     local e = w9("TextLabel", w69)
     e.Text = a
-    e.Size = w7(0, 120, 0, 32)
+    e.Size = w7(0, 130, 0, 32)
     e.Position = w7(0, 20, 0, b)
     e.TextColor3 = w11.wht
     e.BackgroundTransparency = 1
     e.Font = w10
-    e.TextSize = 18
+    e.TextSize = #a > 14 and 16 or 18
     e.TextXAlignment = Enum.TextXAlignment.Left
 
     local f = w9("TextBox", w69)
     f.Text = w24.tok[d]
-    f.Size = w7(0, 320, 0, 32)
-    f.Position = w7(0, 140, 0, b)
+    f.Size = w7(0, 310, 0, 32)
+    f.Position = w7(0, 150, 0, b)
     f.BackgroundColor3 = w11.inp
     f.TextColor3 = w11.wht
     f.Font = w10
     f.TextSize = 18
-    f.ClearTextOnFocus = true
+    f.ClearTextOnFocus = false
     f.PlaceholderText = c
     f.PlaceholderColor3 = w11.dim
     w9("UICorner", f).CornerRadius = UDim.new(0, 4)
 
-    w12(f.FocusLost, function(g)
-        if g then
-            w24.tok[d] = f.Text
-            w26()
-        end
+    w12(f.FocusLost, function()
+        w24.tok[d] = f.Text
+        w26()
     end)
 
     return f
@@ -801,7 +908,7 @@ end
 
 local w70 = w68("Tokens", 56, "Enter your tokens", "tokens")
 local w71 = w68("TPM", 102, "Enter your TPM", "tpm")
-local w72 = w68("Objective", 148, "Enter your objective", "obj")
+local w72 = w68("Tokens Objective", 148, "Enter your tokens objective", "obj")
 local w86 = w68("TPM Objective", 194, "Enter your TPM objective", "tpo")
 
 local w73 = w9("TextLabel", w69)
@@ -825,10 +932,20 @@ w74.TextSize = 18
 w74.AutoButtonColor = false
 w9("UICorner", w74).CornerRadius = UDim.new(0, 4)
 
-local w75 = w9("TextLabel", w69)
+local w90 = w9("ScrollingFrame", w69)
+w90.Size = w7(0, 440, 0, 196)
+w90.Position = w7(0, 20, 0, 340)
+w90.BackgroundTransparency = 1
+w90.ScrollBarThickness = 4
+w90.CanvasSize = w7(0, 0, 0, 0)
+w90.AutomaticCanvasSize = Enum.AutomaticSize.Y
+w90.BorderSizePixel = 0
+
+local w75 = w9("TextLabel", w90)
 w75.Text = ""
-w75.Size = w7(0, 440, 0, 150)
-w75.Position = w7(0, 20, 0, 340)
+w75.Size = w7(1, -8, 0, 0)
+w75.Position = w7(0, 4, 0, 4)
+w75.AutomaticSize = Enum.AutomaticSize.Y
 w75.TextColor3 = w11.wht
 w75.BackgroundTransparency = 1
 w75.Font = w10
@@ -895,6 +1012,7 @@ w12(w74.MouseButton1Click, function()
         end
     end
     w75.Text = e and (f and e .. "\n-- --\n" .. f or e) or (f or "Fill TPM and at least one objective to calculate.")
+    w90.CanvasPosition = Vector2.new(0, 0)
 end)
 
 w38(w74, w11.org, w11.orgH)
@@ -942,7 +1060,7 @@ local function w82(a)
     local b = w81()
     local c = w79()
     local d = 480 * b
-    local e = 500 * b
+    local e = 546 * b
     local f = 50 * b
     local g, h = w24.pos and not a, w24.icon and not a
     w29.Position = g and w7(
