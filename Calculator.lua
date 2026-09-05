@@ -39,6 +39,8 @@ local w11 = {
     cy = w8(0, 168, 255),
     cyH = w8(64, 196, 255),
     pu = w8(168, 85, 247),
+    grn = w8(0, 200, 150),
+    vio = w8(124, 77, 255),
     org = w8(245, 158, 11),
     orgH = w8(251, 191, 36),
     wht = w8(255, 255, 255)
@@ -209,7 +211,7 @@ for a, b in pairs(w21) do
 end
 
 local w23 = "TrainingCalc/" .. w5.Name .. ".json"
-local w24 = {key = "G", pos = nil, icon = nil, speed = false, train = false, power = "0", cat = nil, view = "Home", mem = {}, tok = {tokens = "", tpm = "", obj = "", tpo = ""}}
+local w24 = {key = "G", pos = nil, icon = nil, speed = false, train = false, power = "0", cat = nil, view = "Home", mem = {}, fmode = "oth", tok = {cur = {tokens = "", tpm = ""}, oth = {tokens = "", tpm = ""}, obj = "", tpo = "", mode = "oth"}}
 local w26, w29, w34
 local w84, w85 = false, false
 local w27 = os.clock()
@@ -234,6 +236,7 @@ local function w25()
         w24.train = d.train or false
         w24.power = d.power or "0"
         w24.cat = d.cat
+        w24.fmode = d.fmode == "cur" and "cur" or "oth"
         if d.view == "Farming" or d.view == "Tokens" then
             w24.view = d.view
         end
@@ -241,20 +244,49 @@ local function w25()
             w24.mem = {}
             for e, f in pairs(d.mem) do
                 if type(f) == "table" then
-                    f.val = tonumber(f.val)
-                    f.area = tonumber(f.area)
-                    if f.mult ~= nil then f.mult = tostring(f.mult) end
-                    if f.power ~= nil then f.power = tostring(f.power) end
-                    if f.pobj ~= nil then f.pobj = tostring(f.pobj) end
-                    w24.mem[e] = f
+                    local g = {}
+                    g.area = tonumber(f.area)
+                    if f.pobj ~= nil then g.pobj = tostring(f.pobj) end
+                    local h = {power = ""}
+                    local i = {power = ""}
+                    if type(f.cur) == "table" then
+                        h.power = tostring(f.cur.power or "")
+                        if f.cur.mult ~= nil then h.mult = tostring(f.cur.mult) end
+                        h.val = tonumber(f.cur.val)
+                    end
+                    if type(f.oth) == "table" then
+                        i.power = tostring(f.oth.power or "")
+                        if f.oth.mult ~= nil then i.mult = tostring(f.oth.mult) end
+                        i.val = tonumber(f.oth.val)
+                    elseif f.power ~= nil or f.mult ~= nil or f.val ~= nil then
+                        i.power = tostring(f.power or "")
+                        if f.mult ~= nil then i.mult = tostring(f.mult) end
+                        i.val = tonumber(f.val)
+                    end
+                    g.cur = h
+                    g.oth = i
+                    w24.mem[e] = g
                 end
             end
         end
         if type(d.tok) == "table" then
-            w24.tok.tokens = tostring(d.tok.tokens or "")
-            w24.tok.tpm = tostring(d.tok.tpm or "")
             w24.tok.obj = tostring(d.tok.obj or "")
             w24.tok.tpo = tostring(d.tok.tpo or "")
+            w24.tok.mode = d.tok.mode == "cur" and "cur" or "oth"
+            if type(d.tok.cur) == "table" then
+                w24.tok.cur.tokens = tostring(d.tok.cur.tokens or "")
+                w24.tok.cur.tpm = tostring(d.tok.cur.tpm or "")
+            elseif d.tok.mode == "cur" then
+                w24.tok.cur.tokens = tostring(d.tok.tokens or "")
+                w24.tok.cur.tpm = tostring(d.tok.tpm or "")
+            end
+            if type(d.tok.oth) == "table" then
+                w24.tok.oth.tokens = tostring(d.tok.oth.tokens or "")
+                w24.tok.oth.tpm = tostring(d.tok.oth.tpm or "")
+            elseif d.tok.mode ~= "cur" then
+                w24.tok.oth.tokens = tostring(d.tok.tokens or "")
+                w24.tok.oth.tpm = tostring(d.tok.tpm or "")
+            end
         end
     end
 end
@@ -327,7 +359,7 @@ local function w37()
             w29.Size = w7(0, 0, 0, 0)
             w29.BackgroundTransparency = 1
             w13(w29, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = w7(0, 480, 0, 546),
+                Size = w7(0, 480, 0, 584),
                 BackgroundTransparency = 0
             })
             task.wait(0.3)
@@ -365,8 +397,8 @@ w.gui = w28
 
 w29 = w9("Frame", w28)
 w29.Name = "MainFrame"
-w29.Size = w7(0, 480, 0, 546)
-w29.Position = w24.pos and w7(0, w24.pos.X, 0, w24.pos.Y) or w7(0.5, -240, 0.5, -273)
+w29.Size = w7(0, 480, 0, 584)
+w29.Position = w24.pos and w7(0, w24.pos.X, 0, w24.pos.Y) or w7(0.5, -240, 0.5, -292)
 w29.BackgroundColor3 = w11.bg
 w29.BorderSizePixel = 0
 w29.Visible = false
@@ -583,7 +615,9 @@ w9("UICorner", w60).CornerRadius = UDim.new(0, 4)
 w12(w60.FocusLost, function()
     if w58 then
         w24.mem[w58] = w24.mem[w58] or {}
-        w24.mem[w58].power = w60.Text
+        local a = w24.mem[w58]
+        a[w24.fmode] = a[w24.fmode] or {power = ""}
+        a[w24.fmode].power = w60.Text
     else
         w24.power = w60.Text
     end
@@ -622,7 +656,7 @@ end)
 
 local w61 = w9("TextButton", w47)
 w61.Size = w7(0, 210, 0, 32)
-w61.Position = w7(0, 20, 0, 286)
+w61.Position = w7(0, 20, 0, 332)
 w61.BackgroundColor3 = w11.btn
 w61.TextColor3 = w11.wht
 w61.Font = w10
@@ -632,7 +666,7 @@ w9("UICorner", w61).CornerRadius = UDim.new(0, 4)
 
 local w62 = w9("TextButton", w47)
 w62.Size = w7(0, 210, 0, 32)
-w62.Position = w7(0, 250, 0, 286)
+w62.Position = w7(0, 250, 0, 332)
 w62.BackgroundColor3 = w11.btn
 w62.TextColor3 = w11.wht
 w62.Font = w10
@@ -662,7 +696,7 @@ end)
 local w64 = w9("TextButton", w47)
 w64.Text = "Calculate"
 w64.Size = w7(0, 440, 0, 40)
-w64.Position = w7(0, 20, 0, 332)
+w64.Position = w7(0, 20, 0, 378)
 w64.BackgroundColor3 = w11.org
 w64.TextColor3 = w11.wht
 w64.Font = w10
@@ -672,7 +706,7 @@ w9("UICorner", w64).CornerRadius = UDim.new(0, 4)
 
 local w89 = w9("ScrollingFrame", w47)
 w89.Size = w7(0, 440, 0, 150)
-w89.Position = w7(0, 20, 0, 386)
+w89.Position = w7(0, 20, 0, 424)
 w89.BackgroundTransparency = 1
 w89.ScrollBarThickness = 4
 w89.CanvasSize = w7(0, 0, 0, 0)
@@ -709,12 +743,123 @@ for _, a in ipairs(w66) do
         w55.Visible = false
         if w58 then
             w24.mem[w58] = w24.mem[w58] or {}
-            w24.mem[w58].mult = a[1]
-            w24.mem[w58].val = a[2]
+            local b = w24.mem[w58]
+            b[w24.fmode] = b[w24.fmode] or {}
+            b[w24.fmode].mult = a[1]
+            b[w24.fmode].val = a[2]
             w26()
         end
     end)
 end
+
+local function w97()
+    local a = {}
+    local b = w6:FindFirstChild("ScreenGui")
+    local c = b and b:FindFirstChild("MenuFrame")
+    local d = c and c:FindFirstChild("InfoFrame")
+    if d then
+        for _, e in ipairs(w20) do
+            local f = {}
+            local g = d:FindFirstChild(e .. "Txt")
+            if g and g.Text and g.Text ~= "" then
+                local h = string.match(g.Text, ".*:%s*(.-)%s*$") or string.match(g.Text, "([%d%.]+%a+)%s*$")
+                if h and w16(h) then f.v = h end
+            end
+            local i = d:FindFirstChild(e .. "MultiplierTxt")
+            if i and i.Text and i.Text ~= "" then
+                local j = w16(i.Text)
+                if j then f.m = j end
+            end
+            if f.v or f.m then a[e] = f end
+        end
+    end
+    return a
+end
+
+local function w101()
+    local a = w97()
+    local b, c = false, false
+    for d, e in pairs(a) do
+        local f = w24.mem[d] or {}
+        w24.mem[d] = f
+        f.cur = f.cur or {power = ""}
+        if e.v then
+            if f.cur.power ~= e.v then
+                c = true
+            end
+            f.cur.power = e.v
+            b = true
+        end
+        if e.m then
+            local g = tostring(e.m)
+            if f.cur.mult ~= g or f.cur.val ~= e.m then
+                c = true
+            end
+            f.cur.mult = g
+            f.cur.val = e.m
+            b = true
+        end
+    end
+    return b, c
+end
+
+local w98 = w9("TextButton", w47)
+w98.Text = "Use Current Stats"
+w98.Size = w7(0, 210, 0, 32)
+w98.Position = w7(0, 20, 0, 286)
+w98.BackgroundColor3 = w11.btn
+w98.TextColor3 = w11.wht
+w98.Font = w10
+w98.TextSize = 18
+w98.AutoButtonColor = false
+w9("UICorner", w98).CornerRadius = UDim.new(0, 4)
+
+local w99 = w9("TextButton", w47)
+w99.Text = "Use Other Stats"
+w99.Size = w7(0, 210, 0, 32)
+w99.Position = w7(0, 250, 0, 286)
+w99.BackgroundColor3 = w11.btn
+w99.TextColor3 = w11.wht
+w99.Font = w10
+w99.TextSize = 18
+w99.AutoButtonColor = false
+w9("UICorner", w99).CornerRadius = UDim.new(0, 4)
+
+local function w100()
+    local a = w24.fmode == "cur"
+    w98.BackgroundColor3 = a and w11.grn or w11.btn
+    w99.BackgroundColor3 = a and w11.btn or w11.vio
+end
+
+local function w102(a)
+    local b = w24.mem[a]
+    local c = b and b[w24.fmode]
+    w54.Text = c and c.mult or "Select"
+    w54:SetAttribute("Val", c and c.val or nil)
+    w60.Text = (c and c.power ~= "" and c.power) or "0"
+end
+
+w12(w98.MouseButton1Click, function()
+    w24.fmode = "cur"
+    w100()
+    local a = w101()
+    if w58 then
+        w102(w58)
+    end
+    w26()
+    if not a then
+        w65.Text = "Couldn't read your current stats. Put them manually or use Other Stats."
+    end
+end)
+
+w12(w99.MouseButton1Click, function()
+    w24.fmode = "oth"
+    w100()
+    if w58 then
+        w102(w58)
+    end
+    w26()
+end)
 
 local function w67(a)
     w48.Text = a
@@ -746,10 +891,11 @@ local function w67(a)
             w26()
         end)
     end
+    if w24.fmode == "cur" then
+        w101()
+    end
+    w102(a)
     local g = w24.mem[a]
-    w54.Text = g and g.mult or "Select"
-    w54:SetAttribute("Val", g and g.val or nil)
-    w60.Text = g and g.power or "0"
     w88.Text = g and g.pobj or ""
     if g and type(g.area) == "number" and w19[a][g.area] then
         local h = w19[a][g.area]
@@ -780,6 +926,26 @@ local function w91(a, b)
 end
 
 w12(w64.MouseButton1Click, function()
+    if w24.fmode == "cur" and w58 then
+        local a = w97()
+        local b = a[w58]
+        if b then
+            local c = w24.mem[w58] or {}
+            w24.mem[w58] = c
+            c.cur = c.cur or {power = ""}
+            if b.v then
+                c.cur.power = b.v
+                w60.Text = b.v
+            end
+            if b.m then
+                c.cur.mult = tostring(b.m)
+                c.cur.val = b.m
+                w54.Text = tostring(b.m)
+                w54:SetAttribute("Val", b.m)
+            end
+            w26()
+        end
+    end
     local a = w51:GetAttribute("Mult")
     local b = w51:GetAttribute("Idx")
     if not a or not b then
@@ -885,25 +1051,30 @@ local function w68(a, b, c, d)
     e.TextSize = #a > 14 and 16 or 18
     e.TextXAlignment = Enum.TextXAlignment.Left
 
-    local f = w9("TextBox", w69)
-    f.Text = w24.tok[d]
-    f.Size = w7(0, 310, 0, 32)
-    f.Position = w7(0, 150, 0, b)
-    f.BackgroundColor3 = w11.inp
-    f.TextColor3 = w11.wht
-    f.Font = w10
-    f.TextSize = 18
-    f.ClearTextOnFocus = false
-    f.PlaceholderText = c
-    f.PlaceholderColor3 = w11.dim
-    w9("UICorner", f).CornerRadius = UDim.new(0, 4)
+    local f = d == "tokens" or d == "tpm"
+    local g = w9("TextBox", w69)
+    g.Text = f and w24.tok[w24.tok.mode][d] or w24.tok[d]
+    g.Size = w7(0, 310, 0, 32)
+    g.Position = w7(0, 150, 0, b)
+    g.BackgroundColor3 = w11.inp
+    g.TextColor3 = w11.wht
+    g.Font = w10
+    g.TextSize = 18
+    g.ClearTextOnFocus = false
+    g.PlaceholderText = c
+    g.PlaceholderColor3 = w11.dim
+    w9("UICorner", g).CornerRadius = UDim.new(0, 4)
 
-    w12(f.FocusLost, function()
-        w24.tok[d] = f.Text
+    w12(g.FocusLost, function()
+        if f then
+            w24.tok[w24.tok.mode][d] = g.Text
+        else
+            w24.tok[d] = g.Text
+        end
         w26()
     end)
 
-    return f
+    return g
 end
 
 local w70 = w68("Tokens", 56, "Enter your tokens", "tokens")
@@ -914,7 +1085,7 @@ local w86 = w68("TPM Objective", 194, "Enter your TPM objective", "tpo")
 local w73 = w9("TextLabel", w69)
 w73.Text = "Passive growth: +1 TPM every 4H -- +6 TPM per day"
 w73.Size = w7(0, 440, 0, 32)
-w73.Position = w7(0, 20, 0, 240)
+w73.Position = w7(0, 20, 0, 286)
 w73.TextColor3 = w11.dim
 w73.BackgroundTransparency = 1
 w73.Font = w10
@@ -924,7 +1095,7 @@ w73.TextXAlignment = Enum.TextXAlignment.Left
 local w74 = w9("TextButton", w69)
 w74.Text = "Calculate"
 w74.Size = w7(0, 440, 0, 40)
-w74.Position = w7(0, 20, 0, 286)
+w74.Position = w7(0, 20, 0, 332)
 w74.BackgroundColor3 = w11.org
 w74.TextColor3 = w11.wht
 w74.Font = w10
@@ -933,8 +1104,8 @@ w74.AutoButtonColor = false
 w9("UICorner", w74).CornerRadius = UDim.new(0, 4)
 
 local w90 = w9("ScrollingFrame", w69)
-w90.Size = w7(0, 440, 0, 196)
-w90.Position = w7(0, 20, 0, 340)
+w90.Size = w7(0, 440, 0, 150)
+w90.Position = w7(0, 20, 0, 386)
 w90.BackgroundTransparency = 1
 w90.ScrollBarThickness = 4
 w90.CanvasSize = w7(0, 0, 0, 0)
@@ -960,6 +1131,11 @@ local function w76(a, b, c)
     return a + b * c + 240 * d * (d - 1) / 2 + e * d
 end
 
+local function w96(a, b, c, d)
+    if c <= d then return a + b * c end
+    return a + b * d + w76(0, b + 1, c - d)
+end
+
 local function w77(a, b, c)
     local d = c - a
     if d <= 0 then return 0 end
@@ -975,12 +1151,119 @@ local function w77(a, b, c)
     return g
 end
 
+local function w92()
+    local a, b, c = nil, nil, nil
+    local d = w6:FindFirstChild("ScreenGui")
+    if d then
+        local e = d:FindFirstChild("MenuFrame")
+        local f = e and e:FindFirstChild("SpecialFrame")
+        if f then
+            local g = f:FindFirstChild("CurrentTokenEarning_Txt")
+            if g and g.Text and g.Text ~= "" then
+                b = w16(g.Text)
+            end
+            local h = f:FindFirstChild("NextTokenEarningUpgrade_Txt")
+            if h and h.Text and h.Text ~= "" then
+                local i = string.match(h.Text, "(%d+)%s*[mM]in") or string.match(h.Text, "(%d+)")
+                if i then
+                    c = math.clamp(tonumber(i), 1, 240)
+                end
+            end
+        end
+        local j = d:FindFirstChild("CurrentGemImgBtn")
+        local k = j and j:FindFirstChild("AmountTxtBtn")
+        if k and k.Text and k.Text ~= "" then
+            a = w16(k.Text)
+        end
+    end
+    return a, b, c
+end
+
+local w93 = w9("TextButton", w69)
+w93.Text = "Use Current Stats"
+w93.Size = w7(0, 210, 0, 32)
+w93.Position = w7(0, 20, 0, 240)
+w93.BackgroundColor3 = w11.btn
+w93.TextColor3 = w11.wht
+w93.Font = w10
+w93.TextSize = 18
+w93.AutoButtonColor = false
+w9("UICorner", w93).CornerRadius = UDim.new(0, 4)
+
+local w94 = w9("TextButton", w69)
+w94.Text = "Use Other Stats"
+w94.Size = w7(0, 210, 0, 32)
+w94.Position = w7(0, 250, 0, 240)
+w94.BackgroundColor3 = w11.btn
+w94.TextColor3 = w11.wht
+w94.Font = w10
+w94.TextSize = 18
+w94.AutoButtonColor = false
+w9("UICorner", w94).CornerRadius = UDim.new(0, 4)
+
+local function w95()
+    local a = w24.tok.mode == "cur"
+    w93.BackgroundColor3 = a and w11.grn or w11.btn
+    w94.BackgroundColor3 = a and w11.btn or w11.vio
+end
+
+w12(w93.MouseButton1Click, function()
+    w24.tok.mode = "cur"
+    w95()
+    local a, b = w92()
+    if a then
+        w24.tok.cur.tokens = tostring(a)
+    end
+    if b then
+        w24.tok.cur.tpm = tostring(b)
+    end
+    w70.Text = w24.tok.cur.tokens
+    w71.Text = w24.tok.cur.tpm
+    if not a and not b then
+        w75.Text = "Couldn't read your current stats. Put them manually or use Other Stats."
+    end
+    w26()
+end)
+
+w12(w94.MouseButton1Click, function()
+    w24.tok.mode = "oth"
+    w95()
+    w70.Text = w24.tok.oth.tokens
+    w71.Text = w24.tok.oth.tpm
+    w26()
+end)
+
 w12(w74.MouseButton1Click, function()
     local a = w16(w70.Text)
     local b = w16(w71.Text)
     local c = w16(w72.Text)
     local d = w16(w86.Text)
     local e, f = nil, nil
+    local g = 240
+    if w24.tok.mode == "cur" then
+        local h, i, j = w92()
+        if i then
+            b = i
+            w71.Text = tostring(i)
+            w24.tok.cur.tpm = tostring(i)
+        end
+        if h then
+            a = h
+            w70.Text = tostring(h)
+            w24.tok.cur.tokens = tostring(h)
+        end
+        if j then
+            g = j
+        end
+        if h or i then
+            w26()
+        end
+        if not i then
+            w75.Text = "Current stats: couldn't read your TPM. Put it manually or use Other Stats."
+            w90.CanvasPosition = Vector2.new(0, 0)
+            return
+        end
+    end
     if c then
         if not a then
             e = "Token objective: enter valid tokens."
@@ -989,10 +1272,16 @@ w12(w74.MouseButton1Click, function()
         elseif c <= a then
             e = "Token objective: you already have more than that! Put another value."
         else
-            local g = w77(a, b, c)
+            local k
+            if c - a <= b * g then
+                k = math.ceil((c - a) / b)
+            else
+                k = g + w77(a + b * g, b + 1, c)
+            end
+            local m = k > g and math.floor((k - g - 1) / 240) + 1 or 0
             e = "Token objective -- Remaining: " .. w15(c - a) ..
-                "\nEstimated time: " .. w17(g * 60) ..
-                "\nTPM on arrival: " .. w15(b + math.floor(g / 240))
+                "\nEstimated time: " .. w17(k * 60) ..
+                "\nTPM on arrival: " .. w15(b + m)
         end
     end
     if d then
@@ -1001,21 +1290,85 @@ w12(w74.MouseButton1Click, function()
         elseif d <= b then
             f = "TPM objective: you already have more than that! Put another value."
         else
-            local g = (d - b) * 240
+            local k = g + (d - b - 1) * 240
             f = "TPM objective -- TPM to gain: " .. w15(d - b) ..
-                "\nEstimated time: " .. w17(g * 60)
+                "\nEstimated time: " .. w17(k * 60)
             if a then
-                f = f .. "\nTokens by then: " .. w15(w76(a, b, g))
+                f = f .. "\nTokens by then: " .. w15(w96(a, b, k, g))
             else
-                f = f .. "\nTokens gained: " .. w15(w76(0, b, g))
+                f = f .. "\nTokens gained: " .. w15(w96(0, b, k, g))
             end
         end
     end
-    w75.Text = e and (f and e .. "\n-- --\n" .. f or e) or (f or "Fill TPM and at least one objective to calculate.")
+    local n = ""
+    if w24.tok.mode == "cur" then
+        n = "Current stats -- Tokens: " .. (a and w15(a) or "?") .. " -- TPM: " .. (b and w15(b) or "?") ..
+            " -- Next +1 TPM in " .. g .. " min\n\n"
+    end
+    w75.Text = n .. (e and (f and e .. "\n-- --\n" .. f or e) or (f or "Fill TPM and at least one objective to calculate."))
     w90.CanvasPosition = Vector2.new(0, 0)
 end)
 
 w38(w74, w11.org, w11.orgH)
+
+local function w103()
+    local _, a = w101()
+    if w58 and not w60:IsFocused() then
+        w102(w58)
+    end
+    return a
+end
+
+local function w104()
+    local a, b = w92()
+    local c = false
+    if a then
+        local d = tostring(a)
+        if w24.tok.cur.tokens ~= d then
+            w24.tok.cur.tokens = d
+            c = true
+        end
+        if not w70:IsFocused() and w70.Text ~= d then
+            w70.Text = d
+        end
+    end
+    if b then
+        local d = tostring(b)
+        if w24.tok.cur.tpm ~= d then
+            w24.tok.cur.tpm = d
+            c = true
+        end
+        if not w71:IsFocused() and w71.Text ~= d then
+            w71.Text = d
+        end
+    end
+    return c
+end
+
+w.th[#w.th + 1] = task.spawn(function()
+    local a = false
+    local b = 0
+    while true do
+        task.wait(1)
+        local c = false
+        if w24.fmode == "cur" then
+            local d, e = pcall(w103)
+            if d and e then c = true end
+        end
+        if w24.tok.mode == "cur" then
+            local f, g = pcall(w104)
+            if f and g then c = true end
+        end
+        if c then
+            a = true
+        end
+        if a and os.time() - b >= 10 then
+            a = false
+            b = os.time()
+            w26()
+        end
+    end
+end)
 
 local function w42(a)
     for _, b in ipairs(w41) do b.Visible = false end
@@ -1060,7 +1413,7 @@ local function w82(a)
     local b = w81()
     local c = w79()
     local d = 480 * b
-    local e = 546 * b
+    local e = 584 * b
     local f = 50 * b
     local g, h = w24.pos and not a, w24.icon and not a
     w29.Position = g and w7(
@@ -1098,5 +1451,18 @@ w36(w34, w37)
 w12(w33.MouseButton1Click, w37)
 
 w63()
+w95()
+w100()
 w42(w24.view)
+if w24.tok.mode == "cur" then
+    local a, b = w92()
+    if a then
+        w24.tok.cur.tokens = tostring(a)
+        w70.Text = tostring(a)
+    end
+    if b then
+        w24.tok.cur.tpm = tostring(b)
+        w71.Text = tostring(b)
+    end
+end
 w82()
