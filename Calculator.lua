@@ -34,6 +34,7 @@ local w11 = {
     inp = w8(110, 110, 110),
     drop = w8(50, 50, 50),
     dim = w8(150, 150, 150),
+    sbr = w8(190, 190, 190),
     red = w8(180, 0, 0),
     redH = w8(220, 30, 30),
     cy = w8(0, 168, 255),
@@ -211,8 +212,8 @@ for a, b in pairs(w21) do
 end
 
 local w23 = "TrainingCalc/" .. w5.Name .. ".json"
-local w24 = {key = "G", pos = nil, icon = nil, speed = false, train = false, power = "0", cat = nil, view = "Home", mem = {}, fmode = "oth", tok = {cur = {tokens = "", tpm = ""}, oth = {tokens = "", tpm = ""}, obj = "", tpo = "", mode = "oth"}}
-local w26, w29, w34
+local w24 = {key = "G", pos = nil, icon = nil, speed = false, train = false, power = "0", cat = nil, view = "Home", mem = {}, fmode = "oth", msg = {FS = "", BT = "", MS = "", JF = "", PP = "", Tokens = ""}, tok = {cur = {tokens = "", tpm = ""}, oth = {tokens = "", tpm = ""}, obj = "", tpo = "", spent = "", mode = "oth"}}
+local w26, w29, w34, w109
 local w84, w85 = false, false
 local w27 = os.clock()
 
@@ -272,6 +273,7 @@ local function w25()
         if type(d.tok) == "table" then
             w24.tok.obj = tostring(d.tok.obj or "")
             w24.tok.tpo = tostring(d.tok.tpo or "")
+            w24.tok.spent = tostring(d.tok.spent or "")
             w24.tok.mode = d.tok.mode == "cur" and "cur" or "oth"
             if type(d.tok.cur) == "table" then
                 w24.tok.cur.tokens = tostring(d.tok.cur.tokens or "")
@@ -286,6 +288,16 @@ local function w25()
             elseif d.tok.mode ~= "cur" then
                 w24.tok.oth.tokens = tostring(d.tok.tokens or "")
                 w24.tok.oth.tpm = tostring(d.tok.tpm or "")
+            end
+        end
+        if type(d.msg) == "table" then
+            for e, f in pairs(d.msg) do
+                local g = tostring(f)
+                if w19[e] or e == "Tokens" then
+                    w24.msg[e] = g
+                elseif e == "Farming" and g ~= "" and w19[w24.cat] then
+                    w24.msg[w24.cat] = g
+                end
             end
         end
     end
@@ -356,10 +368,11 @@ local function w37()
         else
             w34.Visible = false
             w29.Visible = true
+            w29.Position = w7(w29.Position.X.Scale, w29.Position.X.Offset, w29.Position.Y.Scale, w29.Position.Y.Offset - 20)
             w29.Size = w7(0, 0, 0, 0)
             w29.BackgroundTransparency = 1
             w13(w29, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = w7(0, 480, 0, 584),
+                Size = w7(0, 480, 0, 630),
                 BackgroundTransparency = 0
             })
             task.wait(0.3)
@@ -385,6 +398,66 @@ local function w38(a, b, c)
     w12(a.MouseButton1Up, function() e = false g() end)
 end
 
+local function w105(a)
+    a.BackgroundTransparency = 1
+    a.BorderSizePixel = 0
+    a.ScrollBarThickness = 6
+    a.ScrollBarImageColor3 = w11.sbr
+    a.ScrollingDirection = Enum.ScrollingDirection.Y
+    a.CanvasSize = w7(0, 0, 0, 0)
+    a.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    local b = w9("UIPadding", a)
+    b.PaddingTop = UDim.new(0, 4)
+    b.PaddingBottom = UDim.new(0, 6)
+    b.PaddingLeft = UDim.new(0, 4)
+    b.PaddingRight = UDim.new(0, 12)
+    local c = w9("UIListLayout", a)
+    c.SortOrder = Enum.SortOrder.LayoutOrder
+    c.Padding = UDim.new(0, 4)
+end
+
+local function w111(a)
+    local b = {}
+    return function(c)
+        c = tostring(c or "")
+        local d = 0
+        if c ~= "" then
+            for e in (c .. "\n"):gmatch("(.-)\n") do
+                d = d + 1
+                local f = b[d]
+                if not f then
+                    f = w9("TextLabel", a)
+                    f.BackgroundTransparency = 1
+                    f.BorderSizePixel = 0
+                    f.Font = w10
+                    f.TextSize = 16
+                    f.TextColor3 = w11.wht
+                    f.TextWrapped = true
+                    f.TextXAlignment = Enum.TextXAlignment.Left
+                    f.TextYAlignment = Enum.TextYAlignment.Top
+                    f.AutomaticSize = Enum.AutomaticSize.Y
+                    f.Size = w7(1, 0, 0, 0)
+                    b[d] = f
+                end
+                f.Text = e ~= "" and e or " "
+                f.LayoutOrder = d
+                f.Visible = true
+            end
+        end
+        for e = d + 1, #b do
+            b[e].Visible = false
+        end
+    end
+end
+
+local function w112(a, b, c)
+    local d = w9("ScrollingFrame", a)
+    d.Size = w7(0, 440, 0, c)
+    d.Position = w7(0, 20, 0, b)
+    w105(d)
+    return d, w111(d)
+end
+
 if w6:FindFirstChild("cLTRCalculators") then
     w6.cLTRCalculators:Destroy()
 end
@@ -397,8 +470,8 @@ w.gui = w28
 
 w29 = w9("Frame", w28)
 w29.Name = "MainFrame"
-w29.Size = w7(0, 480, 0, 584)
-w29.Position = w24.pos and w7(0, w24.pos.X, 0, w24.pos.Y) or w7(0.5, -240, 0.5, -292)
+w29.Size = w7(0, 480, 0, 630)
+w29.Position = w24.pos and w7(0, w24.pos.X, 0, w24.pos.Y) or w7(0.5, -240, 0.5, -315)
 w29.BackgroundColor3 = w11.bg
 w29.BorderSizePixel = 0
 w29.Visible = false
@@ -704,27 +777,7 @@ w64.TextSize = 18
 w64.AutoButtonColor = false
 w9("UICorner", w64).CornerRadius = UDim.new(0, 4)
 
-local w89 = w9("ScrollingFrame", w47)
-w89.Size = w7(0, 440, 0, 150)
-w89.Position = w7(0, 20, 0, 424)
-w89.BackgroundTransparency = 1
-w89.ScrollBarThickness = 4
-w89.CanvasSize = w7(0, 0, 0, 0)
-w89.AutomaticCanvasSize = Enum.AutomaticSize.Y
-w89.BorderSizePixel = 0
-
-local w65 = w9("TextLabel", w89)
-w65.Text = ""
-w65.Size = w7(1, -8, 0, 0)
-w65.Position = w7(0, 4, 0, 4)
-w65.AutomaticSize = Enum.AutomaticSize.Y
-w65.TextColor3 = w11.wht
-w65.BackgroundTransparency = 1
-w65.Font = w10
-w65.TextSize = 16
-w65.TextWrapped = true
-w65.TextXAlignment = Enum.TextXAlignment.Left
-w65.TextYAlignment = Enum.TextYAlignment.Top
+local w89, w65 = w112(w47, 424, 196)
 
 local w66 = {}
 for _, a in ipairs({{1, 1024}, {1024, 1048576}, {1048576, 16777217}}) do
@@ -848,7 +901,7 @@ w12(w98.MouseButton1Click, function()
     end
     w26()
     if not a then
-        w65.Text = "Couldn't read your current stats. Put them manually or use Other Stats."
+        w109(w65, "Couldn't read your current stats. Put them manually or use Other Stats.")
     end
 end)
 
@@ -895,16 +948,18 @@ local function w67(a)
         w101()
     end
     w102(a)
-    local g = w24.mem[a]
-    w88.Text = g and g.pobj or ""
-    if g and type(g.area) == "number" and w19[a][g.area] then
-        local h = w19[a][g.area]
-        w51.Text = w18(h.name, h.req)
-        w51:SetAttribute("Mult", h.multi)
-        w51:SetAttribute("Min", h.min)
-        w51:SetAttribute("Idx", g.area)
-        w51:SetAttribute("Boost", not w22[a] or g.area >= w22[a])
+    local b = w24.mem[a]
+    w88.Text = b and b.pobj or ""
+    if b and type(b.area) == "number" and w19[a][b.area] then
+        local c = w19[a][b.area]
+        w51.Text = w18(c.name, c.req)
+        w51:SetAttribute("Mult", c.multi)
+        w51:SetAttribute("Min", c.min)
+        w51:SetAttribute("Idx", b.area)
+        w51:SetAttribute("Boost", not w22[a] or b.area >= w22[a])
     end
+    w65(w24.msg[a] or "")
+    w89.CanvasPosition = Vector2.new(0, 0)
     w26()
 end
 
@@ -923,6 +978,16 @@ local function w91(a, b)
         if g and g <= b then d = e else break end
     end
     return d
+end
+
+w109 = function(a, b)
+    a(b)
+    if w24.view == "Farming" and w58 then
+        w24.msg[w58] = b
+    elseif w24.view == "Tokens" then
+        w24.msg.Tokens = b
+    end
+    w26()
 end
 
 w12(w64.MouseButton1Click, function()
@@ -949,18 +1014,18 @@ w12(w64.MouseButton1Click, function()
     local a = w51:GetAttribute("Mult")
     local b = w51:GetAttribute("Idx")
     if not a or not b then
-        w65.Text = "Select an area."
+        w109(w65, "Select an area.")
         return
     end
     local c = w54:GetAttribute("Val")
     if not c then
-        w65.Text = "Select a multiplier."
+        w109(w65, "Select a multiplier.")
         return
     end
     if w88.Text ~= "" then
         local d = w16(w88.Text)
         if not d or d <= 0 then
-            w65.Text = "Power objective: enter a valid value above 0."
+            w109(w65, "Power objective: enter a valid value above 0.")
             return
         end
         local e = w16(w60.Text)
@@ -968,48 +1033,48 @@ w12(w64.MouseButton1Click, function()
             e = w16(w19[w48.Text][b].req) or 0
         end
         if d <= e then
-            w65.Text = "Power objective: you already have more than that! Put another value."
+            w109(w65, "Power objective: you already have more than that! Put another value.")
             return
         end
-        local st = e
-        local f, g, h = 0, {}, false
-        local function i(m, n)
+        local f = e
+        local g, h, i = 0, {}, false
+        local function j(m, n)
             local o = w91(w48.Text, m)
             local p = w19[w48.Text][o]
             local q = w16(p.multi)
             local r = not w22[w48.Text] or o >= w22[w48.Text]
             if not q then
-                h = true
-                g[#g + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): ?"
+                i = true
+                h[#h + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): ?"
                 return
             end
             local s = q * c
             if w24.train and r then s = s * 2 end
             local t = (n - m) / s
             if w24.speed and r then t = t / 2 end
-            f = f + t
-            g[#g + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): " .. w17(t)
+            g = g + t
+            h[#h + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): " .. w17(t)
         end
-        for j = 1, #w19[w48.Text] do
-            local k = w19[w48.Text][j]
-            local l = w16(w48.Text == "BT" and k.min or k.req)
-            if l and l > e and l <= d then
-                i(e, l)
-                e = l
+        for k = 1, #w19[w48.Text] do
+            local l = w19[w48.Text][k]
+            local m = w16(w48.Text == "BT" and l.min or l.req)
+            if m and m > e and m <= d then
+                j(e, m)
+                e = m
             end
         end
         if d > e then
-            i(e, d)
+            j(e, d)
         end
-        w65.Text = "Power objective -- " .. w15(st) .. " to " .. w15(d) .. " -- Total: " .. (h and "?" or w17(f)) ..
-            "\n" .. table.concat(g, "\n") ..
-            (h and "\n-- ? = unknown area multiplier" or "")
+        w109(w65, "Power objective -- " .. w15(f) .. " to " .. w15(d) .. " -- Total: " .. (i and "?" or w17(g)) ..
+            "\n" .. table.concat(h, "\n") ..
+            (i and "\n-- ? = unknown area multiplier" or ""))
         w89.CanvasPosition = Vector2.new(0, 0)
         return
     end
     local d = w16(a)
     if not d then
-        w65.Text = "Unknown area multiplier."
+        w109(w65, "Unknown area multiplier.")
         return
     end
     local e = w51:GetAttribute("Boost")
@@ -1024,11 +1089,11 @@ w12(w64.MouseButton1Click, function()
     local j = f and i / h or 0
     if w24.speed and e then j = j / 2 end
     local k = f and "Estimated time to next area: " .. w17(j) or "Last area selected."
-    w65.Text = "Production per second: " .. w15(h) ..
+    w109(w65, "Production per second: " .. w15(h) ..
         "\nPer minute: " .. w15(h * 60) ..
         "\nPer hour: " .. w15(h * 3600) ..
         "\nPer day: " .. w15(h * 86400) ..
-        "\n" .. k
+        "\n" .. k)
     w89.CanvasPosition = Vector2.new(0, 0)
 end)
 
@@ -1081,21 +1146,32 @@ local w70 = w68("Tokens", 56, "Enter your tokens", "tokens")
 local w71 = w68("TPM", 102, "Enter your TPM", "tpm")
 local w72 = w68("Tokens Objective", 148, "Enter your tokens objective", "obj")
 local w86 = w68("TPM Objective", 194, "Enter your TPM objective", "tpo")
+local w106 = w68("Time Spent", 240, "e.g. 9d10h22m or 9d 10h 22m", "spent")
 
 local w73 = w9("TextLabel", w69)
 w73.Text = "Passive growth: +1 TPM every 4H -- +6 TPM per day"
-w73.Size = w7(0, 440, 0, 32)
-w73.Position = w7(0, 20, 0, 286)
+w73.Size = w7(0, 440, 0, 24)
+w73.Position = w7(0, 20, 0, 324)
 w73.TextColor3 = w11.dim
 w73.BackgroundTransparency = 1
 w73.Font = w10
 w73.TextSize = 16
 w73.TextXAlignment = Enum.TextXAlignment.Left
 
+local w107 = w9("TextLabel", w69)
+w107.Text = "Those numbers are based if you 24/7"
+w107.Size = w7(0, 440, 0, 20)
+w107.Position = w7(0, 20, 0, 346)
+w107.TextColor3 = w11.dim
+w107.BackgroundTransparency = 1
+w107.Font = w10
+w107.TextSize = 14
+w107.TextXAlignment = Enum.TextXAlignment.Left
+
 local w74 = w9("TextButton", w69)
 w74.Text = "Calculate"
 w74.Size = w7(0, 440, 0, 40)
-w74.Position = w7(0, 20, 0, 332)
+w74.Position = w7(0, 20, 0, 382)
 w74.BackgroundColor3 = w11.org
 w74.TextColor3 = w11.wht
 w74.Font = w10
@@ -1103,32 +1179,27 @@ w74.TextSize = 18
 w74.AutoButtonColor = false
 w9("UICorner", w74).CornerRadius = UDim.new(0, 4)
 
-local w90 = w9("ScrollingFrame", w69)
-w90.Size = w7(0, 440, 0, 150)
-w90.Position = w7(0, 20, 0, 386)
-w90.BackgroundTransparency = 1
-w90.ScrollBarThickness = 4
-w90.CanvasSize = w7(0, 0, 0, 0)
-w90.AutomaticCanvasSize = Enum.AutomaticSize.Y
-w90.BorderSizePixel = 0
-
-local w75 = w9("TextLabel", w90)
-w75.Text = ""
-w75.Size = w7(1, -8, 0, 0)
-w75.Position = w7(0, 4, 0, 4)
-w75.AutomaticSize = Enum.AutomaticSize.Y
-w75.TextColor3 = w11.wht
-w75.BackgroundTransparency = 1
-w75.Font = w10
-w75.TextSize = 16
-w75.TextWrapped = true
-w75.TextXAlignment = Enum.TextXAlignment.Left
-w75.TextYAlignment = Enum.TextYAlignment.Top
+local w90, w75 = w112(w69, 428, 192)
 
 local function w76(a, b, c)
     local d = math.floor(c / 240)
     local e = c - d * 240
     return a + b * c + 240 * d * (d - 1) / 2 + e * d
+end
+
+local function w108(a)
+    a = tostring(a):lower():gsub("%s", "")
+    if a == "" then return nil end
+    local b, c = 0, nil
+    for d, e in a:gmatch("([%d%.]+)([wdhms])") do
+        local f = tonumber(d)
+        if f then
+            c = true
+            b = b + f * (e == "w" and 10080 or e == "d" and 1440 or e == "h" and 60 or e == "m" and 1 or 1 / 60)
+        end
+    end
+    if c then return b end
+    return tonumber(a)
 end
 
 local function w96(a, b, c, d)
@@ -1182,7 +1253,7 @@ end
 local w93 = w9("TextButton", w69)
 w93.Text = "Use Current Stats"
 w93.Size = w7(0, 210, 0, 32)
-w93.Position = w7(0, 20, 0, 240)
+w93.Position = w7(0, 20, 0, 286)
 w93.BackgroundColor3 = w11.btn
 w93.TextColor3 = w11.wht
 w93.Font = w10
@@ -1193,7 +1264,7 @@ w9("UICorner", w93).CornerRadius = UDim.new(0, 4)
 local w94 = w9("TextButton", w69)
 w94.Text = "Use Other Stats"
 w94.Size = w7(0, 210, 0, 32)
-w94.Position = w7(0, 250, 0, 240)
+w94.Position = w7(0, 250, 0, 286)
 w94.BackgroundColor3 = w11.btn
 w94.TextColor3 = w11.wht
 w94.Font = w10
@@ -1220,7 +1291,7 @@ w12(w93.MouseButton1Click, function()
     w70.Text = w24.tok.cur.tokens
     w71.Text = w24.tok.cur.tpm
     if not a and not b then
-        w75.Text = "Couldn't read your current stats. Put them manually or use Other Stats."
+        w109(w75, "Couldn't read your current stats. Put them manually or use Other Stats.")
     end
     w26()
 end)
@@ -1238,7 +1309,7 @@ w12(w74.MouseButton1Click, function()
     local b = w16(w71.Text)
     local c = w16(w72.Text)
     local d = w16(w86.Text)
-    local e, f = nil, nil
+    local e, f, p = nil, nil, nil
     local g = 240
     if w24.tok.mode == "cur" then
         local h, i, j = w92()
@@ -1259,7 +1330,7 @@ w12(w74.MouseButton1Click, function()
             w26()
         end
         if not i then
-            w75.Text = "Current stats: couldn't read your TPM. Put it manually or use Other Stats."
+            w109(w75, "Current stats: couldn't read your TPM. Put it manually or use Other Stats.")
             w90.CanvasPosition = Vector2.new(0, 0)
             return
         end
@@ -1300,12 +1371,37 @@ w12(w74.MouseButton1Click, function()
             end
         end
     end
+    local l = w108(w106.Text)
+    if l then
+        if not b or b <= 0 then
+            p = "Time spent: enter a TPM above 0."
+        elseif l <= 0 then
+            p = "Time spent: enter a valid duration above 0."
+        else
+            local o, r
+            if l <= g then
+                o = b * l
+                r = 0
+            else
+                o = b * g + w76(0, b + 1, l - g)
+                r = 1 + math.floor((l - g) / 240)
+            end
+            p = "Time spent -- " .. w17(l * 60) ..
+                "\nTokens gained: " .. w15(o) ..
+                (a and "\nTokens at end: " .. w15(a + o) or "") ..
+                "\nTPM at end: " .. w15(b + r)
+        end
+    end
     local n = ""
     if w24.tok.mode == "cur" then
         n = "Current stats -- Tokens: " .. (a and w15(a) or "?") .. " -- TPM: " .. (b and w15(b) or "?") ..
             " -- Next +1 TPM in " .. g .. " min\n\n"
     end
-    w75.Text = n .. (e and (f and e .. "\n-- --\n" .. f or e) or (f or "Fill TPM and at least one objective to calculate."))
+    local s = {}
+    if e then s[#s + 1] = e end
+    if f then s[#s + 1] = f end
+    if p then s[#s + 1] = p end
+    w109(w75, n .. (s[1] and table.concat(s, "\n-- --\n") or "Fill TPM and at least one objective or a time spent to calculate."))
     w90.CanvasPosition = Vector2.new(0, 0)
 end)
 
@@ -1378,6 +1474,10 @@ local function w42(a)
     w32.Visible = a ~= "Home"
     w31.Text = a == "Home" and "cLTR Calculators" or "cLTR " .. a
     w24.view = a
+    w65(a == "Farming" and w58 and w24.msg[w58] or "")
+    w75(a == "Tokens" and w24.msg.Tokens or "")
+    w89.CanvasPosition = Vector2.new(0, 0)
+    w90.CanvasPosition = Vector2.new(0, 0)
     w26()
 end
 
@@ -1413,7 +1513,7 @@ local function w82(a)
     local b = w81()
     local c = w79()
     local d = 480 * b
-    local e = 584 * b
+    local e = 630 * b
     local f = 50 * b
     local g, h = w24.pos and not a, w24.icon and not a
     w29.Position = g and w7(
