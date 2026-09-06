@@ -884,10 +884,10 @@ w9("UICorner", w64).CornerRadius = UDim.new(0, 4)
 local w89 = wR(w47, 424, 196)
 
 local w66 = {}
-for _, a in ipairs({{1, 1024}, {1024, 1048576}, {1048576, 16777217}}) do
+for _, a in ipairs({{1, 1024}, {1024, 1048576}, {1048576, 1073741824}, {1073741824, 137438953473}}) do
     local b = a[1]
     while b < a[2] do
-        local c = b >= 1048576 and tostring(math.floor(b / 1048576)) .. "M" or b >= 1024 and tostring(math.floor(b / 1024)) .. "k" or tostring(math.floor(b))
+        local c = b >= 1073741824 and w15(b) or b >= 1048576 and tostring(math.floor(b / 1048576)) .. "M" or b >= 1024 and tostring(math.floor(b / 1024)) .. "k" or tostring(math.floor(b))
         table.insert(w66, {c, b})
         b = b * 2
     end
