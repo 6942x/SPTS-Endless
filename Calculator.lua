@@ -211,10 +211,42 @@ for a, b in pairs(w21) do
     end
 end
 
+local function w91(a, b)
+    local c = 1
+    for d, e in ipairs(w19[a]) do
+        local f = w16(e.req)
+        if f and f <= b then c = d else break end
+    end
+    return c
+end
+
 local w23 = "TrainingCalc/" .. w5.Name .. ".json"
-local w24 = {key = "G", pos = nil, icon = nil, speed = false, train = false, power = "0", cat = nil, view = "Home", mem = {}, fmode = "oth", msg = {FS = "", BT = "", MS = "", JF = "", PP = "", Tokens = ""}, tok = {cur = {tokens = "", tpm = ""}, oth = {tokens = "", tpm = ""}, obj = "", tpo = "", spent = "", mode = "oth"}}
+local w24 = {
+    key = "G", pos = nil, icon = nil, pw = "", cat = nil, view = "Home",
+    md = {}, sp = {}, gn = {}, mem = {},
+    tok = {cur = {}, oth = {}},
+    msg = {FS = "", BT = "", MS = "", JF = "", PP = "", Tokens = ""}
+}
+for _, a in ipairs(w20) do
+    w24.md[a] = false
+    w24.sp[a] = false
+    w24.gn[a] = false
+    w24.mem[a] = {cur = {}, oth = {}}
+end
+w24.md.TK = false
+
+local function wA(a)
+    local b = w24.mem[a]
+    if not b then
+        b = {cur = {}, oth = {}}
+        w24.mem[a] = b
+    end
+    return b[w24.md[a] and "cur" or "oth"]
+end
+
 local w26, w29, w34, w109
 local w84, w85 = false, false
+local w110 = {}
 local w27 = os.clock()
 
 local function w25()
@@ -225,79 +257,106 @@ local function w25()
     end)
     if not a or not b then return end
     local c, d = pcall(function() return w4:JSONDecode(b) end)
-    if c and type(d) == "table" then
-        w24.key = d.key or "G"
-        if type(d.pos) == "table" and type(d.pos.X) == "number" and type(d.pos.Y) == "number" then
-            w24.pos = d.pos
+    if not c or type(d) ~= "table" then return end
+
+    local function e(f, g, h)
+        local i = type(g) == "table" and g or {}
+        local j = type(h) == "table" and h or {}
+        local k = i[f]
+        if k == nil then k = j[f] end
+        return k
+    end
+
+    local function f(g, h)
+        local i = w24.mem[g]
+        local j = type(h.cur) == "table" and h.cur or nil
+        local k = type(h.oth) == "table" and h.oth or nil
+        i.cur.pw = tostring(e("pw", j, h) or e("power", j, h) or "")
+        i.oth.pw = tostring(e("pw", k, h) or e("power", k, h) or "")
+        i.cur.ob = tostring(e("ob", j, h) or e("pobj", j, h) or "")
+        i.oth.ob = tostring(e("ob", k, h) or e("pobj", k, h) or "")
+        local l = tonumber(e("ar", j, h) or e("area", j, h))
+        local m = tonumber(e("ar", k, h) or e("area", k, h))
+        i.cur.ar = l and math.floor(l) or nil
+        i.oth.ar = m and math.floor(m) or nil
+        local n = e("mu", j, h) or e("mult", j, h)
+        local o = e("mu", k, h) or e("mult", k, h)
+        i.cur.mu = n ~= nil and tostring(n) or nil
+        i.oth.mu = o ~= nil and tostring(o) or nil
+        i.cur.mv = tonumber(e("mv", j, h) or e("val", j, h))
+        i.oth.mv = tonumber(e("mv", k, h) or e("val", k, h))
+    end
+
+    local function g(h)
+        local i = type(h.cur) == "table" and h.cur or nil
+        local j = type(h.oth) == "table" and h.oth or nil
+        if not i and not j then
+            local k = {tokens = h.tokens, tpm = h.tpm}
+            if h.mode == "cur" then i = k else j = k end
         end
-        if type(d.icon) == "table" and type(d.icon.X) == "number" and type(d.icon.Y) == "number" then
-            w24.icon = d.icon
+        local l = {cur = i, oth = j}
+        for m, n in pairs(l) do
+            local o = w24.tok[m]
+            o.tk = tostring(e("tk", n, h) or e("tokens", n, h) or "")
+            o.tp = tostring(e("tp", n, h) or e("tpm", n, h) or "")
+            o.ob = tostring(e("ob", n, h) or e("obj", n, h) or "")
+            o.to = tostring(e("to", n, h) or e("tpo", n, h) or "")
+            o.sp = tostring(e("sp", n, h) or e("spent", n, h) or "")
         end
-        w24.speed = d.speed or false
-        w24.train = d.train or false
-        w24.power = d.power or "0"
+    end
+
+    w24.key = tostring(d.key or "G")
+    if type(d.pos) == "table" and type(d.pos.X) == "number" and type(d.pos.Y) == "number" then
+        w24.pos = {X = d.pos.X, Y = d.pos.Y}
+    end
+    if type(d.icon) == "table" and type(d.icon.X) == "number" and type(d.icon.Y) == "number" then
+        w24.icon = {X = d.icon.X, Y = d.icon.Y}
+    end
+    w24.pw = tostring(d.pw or d.power or "")
+    if d.view == "Farming" or d.view == "Tokens" then
+        w24.view = d.view
+    end
+    if w19[d.cat] then
         w24.cat = d.cat
-        w24.fmode = d.fmode == "cur" and "cur" or "oth"
-        if d.view == "Farming" or d.view == "Tokens" then
-            w24.view = d.view
+    end
+    local h = d.fmode == "cur"
+    local i = d.speed == true
+    local j = d.train == true
+    for _, k in ipairs(w20) do
+        if type(d.md) == "table" then
+            w24.md[k] = d.md[k] == true or (d.md[k] == nil and h)
+        else
+            w24.md[k] = h
         end
-        if type(d.mem) == "table" then
-            w24.mem = {}
-            for e, f in pairs(d.mem) do
-                if type(f) == "table" then
-                    local g = {}
-                    g.area = tonumber(f.area)
-                    if f.pobj ~= nil then g.pobj = tostring(f.pobj) end
-                    local h = {power = ""}
-                    local i = {power = ""}
-                    if type(f.cur) == "table" then
-                        h.power = tostring(f.cur.power or "")
-                        if f.cur.mult ~= nil then h.mult = tostring(f.cur.mult) end
-                        h.val = tonumber(f.cur.val)
-                    end
-                    if type(f.oth) == "table" then
-                        i.power = tostring(f.oth.power or "")
-                        if f.oth.mult ~= nil then i.mult = tostring(f.oth.mult) end
-                        i.val = tonumber(f.oth.val)
-                    elseif f.power ~= nil or f.mult ~= nil or f.val ~= nil then
-                        i.power = tostring(f.power or "")
-                        if f.mult ~= nil then i.mult = tostring(f.mult) end
-                        i.val = tonumber(f.val)
-                    end
-                    g.cur = h
-                    g.oth = i
-                    w24.mem[e] = g
-                end
-            end
+        if type(d.sp) == "table" then
+            w24.sp[k] = d.sp[k] == true or (d.sp[k] == nil and i)
+        else
+            w24.sp[k] = i
         end
-        if type(d.tok) == "table" then
-            w24.tok.obj = tostring(d.tok.obj or "")
-            w24.tok.tpo = tostring(d.tok.tpo or "")
-            w24.tok.spent = tostring(d.tok.spent or "")
-            w24.tok.mode = d.tok.mode == "cur" and "cur" or "oth"
-            if type(d.tok.cur) == "table" then
-                w24.tok.cur.tokens = tostring(d.tok.cur.tokens or "")
-                w24.tok.cur.tpm = tostring(d.tok.cur.tpm or "")
-            elseif d.tok.mode == "cur" then
-                w24.tok.cur.tokens = tostring(d.tok.tokens or "")
-                w24.tok.cur.tpm = tostring(d.tok.tpm or "")
-            end
-            if type(d.tok.oth) == "table" then
-                w24.tok.oth.tokens = tostring(d.tok.oth.tokens or "")
-                w24.tok.oth.tpm = tostring(d.tok.oth.tpm or "")
-            elseif d.tok.mode ~= "cur" then
-                w24.tok.oth.tokens = tostring(d.tok.tokens or "")
-                w24.tok.oth.tpm = tostring(d.tok.tpm or "")
-            end
+        if type(d.gn) == "table" then
+            w24.gn[k] = d.gn[k] == true or (d.gn[k] == nil and j)
+        else
+            w24.gn[k] = j
         end
-        if type(d.msg) == "table" then
-            for e, f in pairs(d.msg) do
-                local g = tostring(f)
-                if w19[e] or e == "Tokens" then
-                    w24.msg[e] = g
-                elseif e == "Farming" and g ~= "" and w19[w24.cat] then
-                    w24.msg[w24.cat] = g
-                end
+        if type(d.mem) == "table" and type(d.mem[k]) == "table" then
+            f(k, d.mem[k])
+        end
+    end
+    if type(d.md) == "table" then
+        w24.md.TK = d.md.TK == true or (d.md.TK == nil and h)
+    else
+        w24.md.TK = h
+    end
+    if type(d.tok) == "table" then
+        g(d.tok)
+    end
+    if type(d.msg) == "table" then
+        for k, l in pairs(d.msg) do
+            local m = tostring(l)
+            if w19[k] or k == "Tokens" then
+                w24.msg[k] = m
+            elseif k == "Farming" and m ~= "" and w19[w24.cat] then
+                w24.msg[w24.cat] = m
             end
         end
     end
@@ -368,7 +427,6 @@ local function w37()
         else
             w34.Visible = false
             w29.Visible = true
-            w29.Position = w7(w29.Position.X.Scale, w29.Position.X.Offset, w29.Position.Y.Scale, w29.Position.Y.Offset - 20)
             w29.Size = w7(0, 0, 0, 0)
             w29.BackgroundTransparency = 1
             w13(w29, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -398,64 +456,169 @@ local function w38(a, b, c)
     w12(a.MouseButton1Up, function() e = false g() end)
 end
 
-local function w105(a)
-    a.BackgroundTransparency = 1
-    a.BorderSizePixel = 0
-    a.ScrollBarThickness = 6
-    a.ScrollBarImageColor3 = w11.sbr
-    a.ScrollingDirection = Enum.ScrollingDirection.Y
-    a.CanvasSize = w7(0, 0, 0, 0)
-    a.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    local b = w9("UIPadding", a)
-    b.PaddingTop = UDim.new(0, 4)
-    b.PaddingBottom = UDim.new(0, 6)
-    b.PaddingLeft = UDim.new(0, 4)
-    b.PaddingRight = UDim.new(0, 12)
-    local c = w9("UIListLayout", a)
-    c.SortOrder = Enum.SortOrder.LayoutOrder
-    c.Padding = UDim.new(0, 4)
+local function w39(a, b, c)
+    local d = w9("TextButton", a)
+    d.Text = b
+    d.Size = w7(1, 0, 0, 32)
+    d.BackgroundColor3 = w11.item
+    d.TextColor3 = w11.wht
+    d.Font = w10
+    d.TextSize = 18
+    d.AutoButtonColor = false
+    d.ZIndex = 10
+    w38(d, w11.item, w11.prs)
+    w12(d.MouseButton1Click, function() c(d) end)
+    return d
 end
 
-local function w111(a)
-    local b = {}
-    return function(c)
-        c = tostring(c or "")
-        local d = 0
-        if c ~= "" then
-            for e in (c .. "\n"):gmatch("(.-)\n") do
-                d = d + 1
-                local f = b[d]
-                if not f then
-                    f = w9("TextLabel", a)
-                    f.BackgroundTransparency = 1
-                    f.BorderSizePixel = 0
-                    f.Font = w10
-                    f.TextSize = 16
-                    f.TextColor3 = w11.wht
-                    f.TextWrapped = true
-                    f.TextXAlignment = Enum.TextXAlignment.Left
-                    f.TextYAlignment = Enum.TextYAlignment.Top
-                    f.AutomaticSize = Enum.AutomaticSize.Y
-                    f.Size = w7(1, 0, 0, 0)
-                    b[d] = f
-                end
-                f.Text = e ~= "" and e or " "
-                f.LayoutOrder = d
-                f.Visible = true
-            end
+local function w40(a, b, c, d)
+    local e = w9("TextLabel", a)
+    e.Text = b
+    e.Size = w7(0, 130, 0, 32)
+    e.Position = w7(0, 20, 0, c)
+    e.TextColor3 = w11.wht
+    e.BackgroundTransparency = 1
+    e.Font = w10
+    e.TextSize = 18
+    e.TextXAlignment = Enum.TextXAlignment.Left
+
+    local f = w9("TextButton", a)
+    f.Text = "Select"
+    f.Size = w7(0, 310, 0, 32)
+    f.Position = w7(0, 150, 0, c)
+    f.BackgroundColor3 = w11.btn
+    f.TextColor3 = w11.wht
+    f.Font = w10
+    f.TextSize = 18
+    f.AutoButtonColor = false
+    w9("UICorner", f).CornerRadius = UDim.new(0, 4)
+    w38(f, w11.btn, w11.hov)
+
+    local g = w9("Frame", a)
+    g.Size = w7(0, 310, 0, 150)
+    g.Position = w7(0, 150, 0, c + 38)
+    g.BackgroundColor3 = w11.drop
+    g.Visible = false
+    g.ZIndex = 10
+    w9("UICorner", g).CornerRadius = UDim.new(0, 4)
+
+    local h = w9("ScrollingFrame", g)
+    h.Size = w7(1, 0, 1, 0)
+    h.BackgroundTransparency = 1
+    h.ScrollBarThickness = 4
+    h.CanvasSize = w7(0, 0, 0, 0)
+    h.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    h.ZIndex = 10
+
+    local i = w9("UIListLayout", h)
+    i.SortOrder = Enum.SortOrder.LayoutOrder
+    i.Padding = UDim.new(0, 2)
+
+    table.insert(d, g)
+    w12(f.MouseButton1Click, function()
+        for _, j in ipairs(d) do
+            j.Visible = j == g and not g.Visible or false
         end
-        for e = d + 1, #b do
-            b[e].Visible = false
-        end
+    end)
+
+    return f, g, h
+end
+
+local w41 = {}
+
+local function wS(a)
+    local b = tostring(a or "")
+    local c = {}
+    for d in b:gmatch("[^\n]*") do
+        c[#c + 1] = d
     end
+    while #c > 0 and c[#c] == "" do
+        c[#c] = nil
+    end
+    if #c == 0 then c[1] = "" end
+    local e = math.ceil(#c / 3)
+    local f = {{}, {}, {}}
+    for g, h in ipairs(c) do
+        local i = math.min(3, math.floor((g - 1) / e) + 1)
+        table.insert(f[i], h)
+    end
+    local j = {}
+    for g = 1, 3 do
+        j[g] = table.concat(f[g], "\n")
+    end
+    return j
 end
 
-local function w112(a, b, c)
+local function wR(a, b, c)
     local d = w9("ScrollingFrame", a)
     d.Size = w7(0, 440, 0, c)
     d.Position = w7(0, 20, 0, b)
-    w105(d)
-    return d, w111(d)
+    d.BackgroundTransparency = 1
+    d.BorderSizePixel = 0
+    d.ScrollBarThickness = 6
+    d.ScrollBarImageColor3 = w11.sbr
+    d.ScrollingDirection = Enum.ScrollingDirection.Y
+    d.CanvasSize = w7(0, 0, 0, 0)
+
+    local e = w9("UIPadding", d)
+    e.PaddingTop = UDim.new(0, 4)
+    e.PaddingBottom = UDim.new(0, 4)
+    e.PaddingLeft = UDim.new(0, 4)
+    e.PaddingRight = UDim.new(0, 4)
+
+    local f = w9("UIListLayout", d)
+    f.SortOrder = Enum.SortOrder.LayoutOrder
+    f.Padding = UDim.new(0, 6)
+
+    local g = {}
+    for h = 1, 3 do
+        local i = w9("TextLabel", d)
+        i.Size = w7(1, 0, 0, 0)
+        i.AutomaticSize = Enum.AutomaticSize.Y
+        i.BackgroundTransparency = 1
+        i.BorderSizePixel = 0
+        i.Font = w10
+        i.TextSize = 16
+        i.TextWrapped = true
+        i.TextColor3 = w11.wht
+        i.TextXAlignment = Enum.TextXAlignment.Left
+        i.TextYAlignment = Enum.TextYAlignment.Top
+        i.LayoutOrder = h
+        g[h] = i
+    end
+
+    local j = function()
+        local k = 8
+        local l = 0
+        for _, m in ipairs(g) do
+            if m.Visible then
+                k = k + m.AbsoluteSize.Y
+                l = l + 1
+            end
+        end
+        if l > 1 then
+            k = k + (l - 1) * 6
+        end
+        if d.CanvasSize.Y.Offset ~= k then
+            d.CanvasSize = w7(0, 0, 0, k)
+        end
+    end
+    for _, m in ipairs(g) do
+        w12(m:GetPropertyChangedSignal("AbsoluteSize"), j)
+    end
+    w110[#w110 + 1] = j
+
+    local n = function(o)
+        local p = wS(o)
+        for q = 1, 3 do
+            g[q].Text = p[q]
+            g[q].Visible = p[q] ~= ""
+        end
+        j()
+        d.CanvasPosition = Vector2.new(0, 0)
+    end
+    n("")
+    return {fr = d, ls = g, s = n}
 end
 
 if w6:FindFirstChild("cLTRCalculators") then
@@ -533,76 +696,6 @@ w38(w34, w11.bg, w11.item)
 local w35 = w9("UIScale", w34)
 w35.Scale = 1
 
-local function w39(a, b, c)
-    local d = w9("TextButton", a)
-    d.Text = b
-    d.Size = w7(1, 0, 0, 32)
-    d.BackgroundColor3 = w11.item
-    d.TextColor3 = w11.wht
-    d.Font = w10
-    d.TextSize = 18
-    d.AutoButtonColor = false
-    d.ZIndex = 10
-    w38(d, w11.item, w11.prs)
-    w12(d.MouseButton1Click, function() c(d) end)
-    return d
-end
-
-local function w40(a, b, c, d)
-    local e = w9("TextLabel", a)
-    e.Text = b
-    e.Size = w7(0, 130, 0, 32)
-    e.Position = w7(0, 20, 0, c)
-    e.TextColor3 = w11.wht
-    e.BackgroundTransparency = 1
-    e.Font = w10
-    e.TextSize = 18
-    e.TextXAlignment = Enum.TextXAlignment.Left
-
-    local f = w9("TextButton", a)
-    f.Text = "Select"
-    f.Size = w7(0, 310, 0, 32)
-    f.Position = w7(0, 150, 0, c)
-    f.BackgroundColor3 = w11.btn
-    f.TextColor3 = w11.wht
-    f.Font = w10
-    f.TextSize = 18
-    f.AutoButtonColor = false
-    w9("UICorner", f).CornerRadius = UDim.new(0, 4)
-    w38(f, w11.btn, w11.hov)
-
-    local g = w9("Frame", a)
-    g.Size = w7(0, 310, 0, 150)
-    g.Position = w7(0, 150, 0, c + 38)
-    g.BackgroundColor3 = w11.drop
-    g.Visible = false
-    g.ZIndex = 10
-    w9("UICorner", g).CornerRadius = UDim.new(0, 4)
-
-    local h = w9("ScrollingFrame", g)
-    h.Size = w7(1, 0, 1, 0)
-    h.BackgroundTransparency = 1
-    h.ScrollBarThickness = 4
-    h.CanvasSize = w7(0, 0, 0, 0)
-    h.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    h.ZIndex = 10
-
-    local i = w9("UIListLayout", h)
-    i.SortOrder = Enum.SortOrder.LayoutOrder
-    i.Padding = UDim.new(0, 2)
-
-    table.insert(d, g)
-    w12(f.MouseButton1Click, function()
-        for _, j in ipairs(d) do
-            j.Visible = j == g and not g.Visible or false
-        end
-    end)
-
-    return f, g, h
-end
-
-local w41 = {}
-
 local w43 = w9("Frame", w29)
 w43.Name = "HomeView"
 w43.Size = w7(1, 0, 1, 0)
@@ -674,7 +767,7 @@ w59.TextSize = 18
 w59.TextXAlignment = Enum.TextXAlignment.Left
 
 local w60 = w9("TextBox", w47)
-w60.Text = w24.power
+w60.Text = w24.pw
 w60.Size = w7(0, 310, 0, 32)
 w60.Position = w7(0, 150, 0, 194)
 w60.BackgroundColor3 = w11.inp
@@ -687,12 +780,9 @@ w60.PlaceholderColor3 = w11.dim
 w9("UICorner", w60).CornerRadius = UDim.new(0, 4)
 w12(w60.FocusLost, function()
     if w58 then
-        w24.mem[w58] = w24.mem[w58] or {}
-        local a = w24.mem[w58]
-        a[w24.fmode] = a[w24.fmode] or {power = ""}
-        a[w24.fmode].power = w60.Text
+        wA(w58).pw = w60.Text
     else
-        w24.power = w60.Text
+        w24.pw = w60.Text
     end
     w26()
 end)
@@ -721,8 +811,7 @@ w88.PlaceholderColor3 = w11.dim
 w9("UICorner", w88).CornerRadius = UDim.new(0, 4)
 w12(w88.FocusLost, function()
     if w58 then
-        w24.mem[w58] = w24.mem[w58] or {}
-        w24.mem[w58].pobj = w88.Text
+        wA(w58).ob = w88.Text
         w26()
     end
 end)
@@ -748,20 +837,35 @@ w62.AutoButtonColor = false
 w9("UICorner", w62).CornerRadius = UDim.new(0, 4)
 
 local function w63()
-    w61.Text = "Speed 2x: " .. (w24.speed and "ON" or "OFF")
-    w61.BackgroundColor3 = w24.speed and w11.cy or w11.btn
-    w62.Text = "Training 2x: " .. (w24.train and "ON" or "OFF")
-    w62.BackgroundColor3 = w24.train and w11.pu or w11.btn
+    if w58 then
+        w61.Text = "Speed 2x: " .. (w24.sp[w58] and "ON" or "OFF")
+        w61.BackgroundColor3 = w24.sp[w58] and w11.cy or w11.btn
+        w62.Text = "Training 2x: " .. (w24.gn[w58] and "ON" or "OFF")
+        w62.BackgroundColor3 = w24.gn[w58] and w11.pu or w11.btn
+    else
+        w61.Text = "Speed 2x: --"
+        w61.BackgroundColor3 = w11.btn
+        w62.Text = "Training 2x: --"
+        w62.BackgroundColor3 = w11.btn
+    end
 end
 
 w12(w61.MouseButton1Click, function()
-    w24.speed = not w24.speed
+    if not w58 then
+        w109("Select a category first.")
+        return
+    end
+    w24.sp[w58] = not w24.sp[w58]
     w63()
     w26()
 end)
 
 w12(w62.MouseButton1Click, function()
-    w24.train = not w24.train
+    if not w58 then
+        w109("Select a category first.")
+        return
+    end
+    w24.gn[w58] = not w24.gn[w58]
     w63()
     w26()
 end)
@@ -777,7 +881,7 @@ w64.TextSize = 18
 w64.AutoButtonColor = false
 w9("UICorner", w64).CornerRadius = UDim.new(0, 4)
 
-local w89, w65 = w112(w47, 424, 196)
+local w89 = wR(w47, 424, 196)
 
 local w66 = {}
 for _, a in ipairs({{1, 1024}, {1024, 1048576}, {1048576, 16777217}}) do
@@ -791,17 +895,18 @@ end
 
 for _, a in ipairs(w66) do
     w39(w56, a[1], function()
+        if not w58 then
+            w109("Select a category first.")
+            w55.Visible = false
+            return
+        end
         w54.Text = a[1]
         w54:SetAttribute("Val", a[2])
         w55.Visible = false
-        if w58 then
-            w24.mem[w58] = w24.mem[w58] or {}
-            local b = w24.mem[w58]
-            b[w24.fmode] = b[w24.fmode] or {}
-            b[w24.fmode].mult = a[1]
-            b[w24.fmode].val = a[2]
-            w26()
-        end
+        local b = wA(w58)
+        b.mu = a[1]
+        b.mv = a[2]
+        w26()
     end)
 end
 
@@ -829,31 +934,71 @@ local function w97()
     return a
 end
 
+local function wB(a, b)
+    local c = w19[a] and w19[a][b]
+    if not c then return end
+    w51.Text = w18(c.name, c.req)
+    w51:SetAttribute("Mult", c.multi)
+    w51:SetAttribute("Min", c.min)
+    w51:SetAttribute("Idx", b)
+    w51:SetAttribute("Boost", not w22[a] or b >= w22[a])
+    w52.Visible = false
+end
+
+local function wC()
+    w51.Text = "Select"
+    w51:SetAttribute("Mult", nil)
+    w51:SetAttribute("Min", nil)
+    w51:SetAttribute("Idx", nil)
+    w51:SetAttribute("Boost", nil)
+end
+
 local function w101()
     local a = w97()
     local b, c = false, false
     for d, e in pairs(a) do
-        local f = w24.mem[d] or {}
-        w24.mem[d] = f
-        f.cur = f.cur or {power = ""}
-        if e.v then
-            if f.cur.power ~= e.v then
-                c = true
+        local f = w24.mem[d]
+        if f then
+            f.cur = f.cur or {}
+            if e.v then
+                if f.cur.pw ~= e.v then c = true end
+                f.cur.pw = e.v
+                b = true
             end
-            f.cur.power = e.v
-            b = true
-        end
-        if e.m then
-            local g = tostring(e.m)
-            if f.cur.mult ~= g or f.cur.val ~= e.m then
-                c = true
+            if e.m then
+                local g = tostring(e.m)
+                if f.cur.mu ~= g or f.cur.mv ~= e.m then c = true end
+                f.cur.mu = g
+                f.cur.mv = e.m
+                b = true
             end
-            f.cur.mult = g
-            f.cur.val = e.m
-            b = true
+            if w24.md[d] then
+                local h = w16(f.cur.pw)
+                if h and h > 0 then
+                    local i = w91(d, h)
+                    if f.cur.ar ~= i then
+                        f.cur.ar = i
+                        c = true
+                    end
+                end
+            end
         end
     end
     return b, c
+end
+
+local function w102(a)
+    local b = wA(a)
+    if not b then return end
+    w54.Text = b.mu or "Select"
+    w54:SetAttribute("Val", b.mv)
+    w60.Text = (b.pw ~= "" and b.pw) or "0"
+    w88.Text = b.ob
+    if b.ar and w19[a][b.ar] then
+        wB(a, b.ar)
+    else
+        wC()
+    end
 end
 
 local w98 = w9("TextButton", w47)
@@ -879,49 +1024,48 @@ w99.AutoButtonColor = false
 w9("UICorner", w99).CornerRadius = UDim.new(0, 4)
 
 local function w100()
-    local a = w24.fmode == "cur"
+    if not w58 then
+        w98.BackgroundColor3 = w11.btn
+        w99.BackgroundColor3 = w11.btn
+        return
+    end
+    local a = w24.md[w58]
     w98.BackgroundColor3 = a and w11.grn or w11.btn
     w99.BackgroundColor3 = a and w11.btn or w11.vio
 end
 
-local function w102(a)
-    local b = w24.mem[a]
-    local c = b and b[w24.fmode]
-    w54.Text = c and c.mult or "Select"
-    w54:SetAttribute("Val", c and c.val or nil)
-    w60.Text = (c and c.power ~= "" and c.power) or "0"
-end
-
 w12(w98.MouseButton1Click, function()
-    w24.fmode = "cur"
+    if not w58 then
+        w109("Select a category first.")
+        return
+    end
+    if w24.md[w58] then return end
+    w24.md[w58] = true
     w100()
     local a = w101()
-    if w58 then
-        w102(w58)
-    end
+    w102(w58)
     w26()
     if not a then
-        w109(w65, "Couldn't read your current stats. Put them manually or use Other Stats.")
+        w109("Couldn't read your current stats. Put them manually or use Other Stats.")
     end
 end)
 
 w12(w99.MouseButton1Click, function()
-    w24.fmode = "oth"
-    w100()
-    if w58 then
-        w102(w58)
+    if not w58 then
+        w109("Select a category first.")
+        return
     end
+    if not w24.md[w58] then return end
+    w24.md[w58] = false
+    w100()
+    w102(w58)
     w26()
 end)
 
 local function w67(a)
     w48.Text = a
     w49.Visible = false
-    w51.Text = "Select"
-    w51:SetAttribute("Mult", nil)
-    w51:SetAttribute("Min", nil)
-    w51:SetAttribute("Idx", nil)
-    w51:SetAttribute("Boost", nil)
+    wC()
     w57.Visible = false
     w53.Visible = true
     w58 = a
@@ -930,36 +1074,21 @@ local function w67(a)
         if b:IsA("TextButton") then b:Destroy() end
     end
     for c, d in ipairs(w19[a]) do
-        local e = not w22[a] or c >= w22[a]
-        local f = w18(d.name, d.req)
-        w39(w53, f, function()
-            w51.Text = f
-            w51:SetAttribute("Mult", d.multi)
-            w51:SetAttribute("Min", d.min)
-            w51:SetAttribute("Idx", c)
-            w51:SetAttribute("Boost", e)
-            w52.Visible = false
-            w24.mem[a] = w24.mem[a] or {}
-            w24.mem[a].area = c
+        local e = w18(d.name, d.req)
+        w39(w53, e, function()
+            wB(a, c)
+            local f = wA(a)
+            f.ar = c
             w26()
         end)
     end
-    if w24.fmode == "cur" then
+    w100()
+    w63()
+    if w24.md[a] then
         w101()
     end
     w102(a)
-    local b = w24.mem[a]
-    w88.Text = b and b.pobj or ""
-    if b and type(b.area) == "number" and w19[a][b.area] then
-        local c = w19[a][b.area]
-        w51.Text = w18(c.name, c.req)
-        w51:SetAttribute("Mult", c.multi)
-        w51:SetAttribute("Min", c.min)
-        w51:SetAttribute("Idx", b.area)
-        w51:SetAttribute("Boost", not w22[a] or b.area >= w22[a])
-    end
-    w65(w24.msg[a] or "")
-    w89.CanvasPosition = Vector2.new(0, 0)
+    w89.s(w24.msg[a] or "")
     w26()
 end
 
@@ -971,42 +1100,33 @@ if w24.cat and w19[w24.cat] then
     w67(w24.cat)
 end
 
-local function w91(a, b)
-    local d = 1
-    for e, f in ipairs(w19[a]) do
-        local g = w16(f.req)
-        if g and g <= b then d = e else break end
-    end
-    return d
-end
-
-w109 = function(a, b)
-    a(b)
-    if w24.view == "Farming" and w58 then
-        w24.msg[w58] = b
-    elseif w24.view == "Tokens" then
-        w24.msg.Tokens = b
-    end
-    w26()
-end
-
 w12(w64.MouseButton1Click, function()
-    if w24.fmode == "cur" and w58 then
+    if not w58 then
+        w109("Select a category first.")
+        return
+    end
+    if w24.md[w58] then
         local a = w97()
         local b = a[w58]
         if b then
-            local c = w24.mem[w58] or {}
-            w24.mem[w58] = c
-            c.cur = c.cur or {power = ""}
+            local c = wA(w58)
             if b.v then
-                c.cur.power = b.v
+                c.pw = b.v
                 w60.Text = b.v
             end
             if b.m then
-                c.cur.mult = tostring(b.m)
-                c.cur.val = b.m
+                c.mu = tostring(b.m)
+                c.mv = b.m
                 w54.Text = tostring(b.m)
                 w54:SetAttribute("Val", b.m)
+            end
+            local d = w16(c.pw)
+            if d and d > 0 then
+                local e = w91(w58, d)
+                if c.ar ~= e then
+                    c.ar = e
+                    wB(w58, e)
+                end
             end
             w26()
         end
@@ -1014,50 +1134,50 @@ w12(w64.MouseButton1Click, function()
     local a = w51:GetAttribute("Mult")
     local b = w51:GetAttribute("Idx")
     if not a or not b then
-        w109(w65, "Select an area.")
+        w109("Select an area.")
         return
     end
     local c = w54:GetAttribute("Val")
     if not c then
-        w109(w65, "Select a multiplier.")
+        w109("Select a multiplier.")
         return
     end
     if w88.Text ~= "" then
         local d = w16(w88.Text)
         if not d or d <= 0 then
-            w109(w65, "Power objective: enter a valid value above 0.")
+            w109("Power objective: enter a valid value above 0.")
             return
         end
         local e = w16(w60.Text)
         if not e or e <= 0 then
-            e = w16(w19[w48.Text][b].req) or 0
+            e = w16(w19[w58][b].req) or 0
         end
         if d <= e then
-            w109(w65, "Power objective: you already have more than that! Put another value.")
+            w109("Power objective: you already have more than that! Put another value.")
             return
         end
         local f = e
         local g, h, i = 0, {}, false
         local function j(m, n)
-            local o = w91(w48.Text, m)
-            local p = w19[w48.Text][o]
+            local o = w91(w58, m)
+            local p = w19[w58][o]
             local q = w16(p.multi)
-            local r = not w22[w48.Text] or o >= w22[w48.Text]
+            local r = not w22[w58] or o >= w22[w58]
             if not q then
                 i = true
                 h[#h + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): ?"
                 return
             end
             local s = q * c
-            if w24.train and r then s = s * 2 end
+            if w24.gn[w58] and r then s = s * 2 end
             local t = (n - m) / s
-            if w24.speed and r then t = t / 2 end
+            if w24.sp[w58] and r then t = t / 2 end
             g = g + t
             h[#h + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): " .. w17(t)
         end
-        for k = 1, #w19[w48.Text] do
-            local l = w19[w48.Text][k]
-            local m = w16(w48.Text == "BT" and l.min or l.req)
+        for k = 1, #w19[w58] do
+            local l = w19[w58][k]
+            local m = w16(w58 == "BT" and l.min or l.req)
             if m and m > e and m <= d then
                 j(e, m)
                 e = m
@@ -1066,35 +1186,33 @@ w12(w64.MouseButton1Click, function()
         if d > e then
             j(e, d)
         end
-        w109(w65, "Power objective -- " .. w15(f) .. " to " .. w15(d) .. " -- Total: " .. (i and "?" or w17(g)) ..
+        w109("Power objective -- " .. w15(f) .. " to " .. w15(d) .. " -- Total: " .. (i and "?" or w17(g)) ..
             "\n" .. table.concat(h, "\n") ..
             (i and "\n-- ? = unknown area multiplier" or ""))
-        w89.CanvasPosition = Vector2.new(0, 0)
         return
     end
     local d = w16(a)
     if not d then
-        w109(w65, "Unknown area multiplier.")
+        w109("Unknown area multiplier.")
         return
     end
     local e = w51:GetAttribute("Boost")
     local f = nil
-    if w19[w48.Text][b + 1] then
-        local g = w19[w48.Text][b + 1]
-        f = w16(w48.Text == "BT" and g.min or g.req)
+    if w19[w58][b + 1] then
+        local g = w19[w58][b + 1]
+        f = w16(w58 == "BT" and g.min or g.req)
     end
     local h = d * c
-    if w24.train and e then h = h * 2 end
+    if w24.gn[w58] and e then h = h * 2 end
     local i = f and math.max(0, f - (w16(w60.Text) or 0)) or 0
     local j = f and i / h or 0
-    if w24.speed and e then j = j / 2 end
+    if w24.sp[w58] and e then j = j / 2 end
     local k = f and "Estimated time to next area: " .. w17(j) or "Last area selected."
-    w109(w65, "Production per second: " .. w15(h) ..
+    w109("Production per second: " .. w15(h) ..
         "\nPer minute: " .. w15(h * 60) ..
         "\nPer hour: " .. w15(h * 3600) ..
         "\nPer day: " .. w15(h * 86400) ..
         "\n" .. k)
-    w89.CanvasPosition = Vector2.new(0, 0)
 end)
 
 w38(w64, w11.org, w11.orgH)
@@ -1116,9 +1234,9 @@ local function w68(a, b, c, d)
     e.TextSize = #a > 14 and 16 or 18
     e.TextXAlignment = Enum.TextXAlignment.Left
 
-    local f = d == "tokens" or d == "tpm"
+    local f = w24.md.TK and w24.tok.cur or w24.tok.oth
     local g = w9("TextBox", w69)
-    g.Text = f and w24.tok[w24.tok.mode][d] or w24.tok[d]
+    g.Text = f[d]
     g.Size = w7(0, 310, 0, 32)
     g.Position = w7(0, 150, 0, b)
     g.BackgroundColor3 = w11.inp
@@ -1131,22 +1249,28 @@ local function w68(a, b, c, d)
     w9("UICorner", g).CornerRadius = UDim.new(0, 4)
 
     w12(g.FocusLost, function()
-        if f then
-            w24.tok[w24.tok.mode][d] = g.Text
-        else
-            w24.tok[d] = g.Text
-        end
+        local h = w24.md.TK and w24.tok.cur or w24.tok.oth
+        h[d] = g.Text
         w26()
     end)
 
     return g
 end
 
-local w70 = w68("Tokens", 56, "Enter your tokens", "tokens")
-local w71 = w68("TPM", 102, "Enter your TPM", "tpm")
-local w72 = w68("Tokens Objective", 148, "Enter your tokens objective", "obj")
-local w86 = w68("TPM Objective", 194, "Enter your TPM objective", "tpo")
-local w106 = w68("Time Spent", 240, "e.g. 9d10h22m or 9d 10h 22m", "spent")
+local w70 = w68("Tokens", 56, "Enter your tokens", "tk")
+local w71 = w68("TPM", 102, "Enter your TPM", "tp")
+local w72 = w68("Tokens Objective", 148, "Enter your tokens objective", "ob")
+local w86 = w68("TPM Objective", 194, "Enter your TPM objective", "to")
+local w106 = w68("Time Spent", 240, "e.g. 9d10h22m or 9d 10h 22m", "sp")
+
+local function wTf()
+    local a = w24.md.TK and w24.tok.cur or w24.tok.oth
+    w70.Text = a.tk
+    w71.Text = a.tp
+    w72.Text = a.ob
+    w86.Text = a.to
+    w106.Text = a.sp
+end
 
 local w73 = w9("TextLabel", w69)
 w73.Text = "Passive growth: +1 TPM every 4H -- +6 TPM per day"
@@ -1179,7 +1303,7 @@ w74.TextSize = 18
 w74.AutoButtonColor = false
 w9("UICorner", w74).CornerRadius = UDim.new(0, 4)
 
-local w90, w75 = w112(w69, 428, 192)
+local w90 = wR(w69, 428, 192)
 
 local function w76(a, b, c)
     local d = math.floor(c / 240)
@@ -1273,34 +1397,34 @@ w94.AutoButtonColor = false
 w9("UICorner", w94).CornerRadius = UDim.new(0, 4)
 
 local function w95()
-    local a = w24.tok.mode == "cur"
+    local a = w24.md.TK
     w93.BackgroundColor3 = a and w11.grn or w11.btn
     w94.BackgroundColor3 = a and w11.btn or w11.vio
 end
 
 w12(w93.MouseButton1Click, function()
-    w24.tok.mode = "cur"
+    if w24.md.TK then return end
+    w24.md.TK = true
     w95()
     local a, b = w92()
     if a then
-        w24.tok.cur.tokens = tostring(a)
+        w24.tok.cur.tk = tostring(a)
     end
     if b then
-        w24.tok.cur.tpm = tostring(b)
+        w24.tok.cur.tp = tostring(b)
     end
-    w70.Text = w24.tok.cur.tokens
-    w71.Text = w24.tok.cur.tpm
-    if not a and not b then
-        w109(w75, "Couldn't read your current stats. Put them manually or use Other Stats.")
-    end
+    wTf()
     w26()
+    if not a and not b then
+        w109("Couldn't read your current stats. Put them manually or use Other Stats.")
+    end
 end)
 
 w12(w94.MouseButton1Click, function()
-    w24.tok.mode = "oth"
+    if not w24.md.TK then return end
+    w24.md.TK = false
     w95()
-    w70.Text = w24.tok.oth.tokens
-    w71.Text = w24.tok.oth.tpm
+    wTf()
     w26()
 end)
 
@@ -1311,17 +1435,17 @@ w12(w74.MouseButton1Click, function()
     local d = w16(w86.Text)
     local e, f, p = nil, nil, nil
     local g = 240
-    if w24.tok.mode == "cur" then
+    if w24.md.TK then
         local h, i, j = w92()
         if i then
             b = i
             w71.Text = tostring(i)
-            w24.tok.cur.tpm = tostring(i)
+            w24.tok.cur.tp = tostring(i)
         end
         if h then
             a = h
             w70.Text = tostring(h)
-            w24.tok.cur.tokens = tostring(h)
+            w24.tok.cur.tk = tostring(h)
         end
         if j then
             g = j
@@ -1330,8 +1454,7 @@ w12(w74.MouseButton1Click, function()
             w26()
         end
         if not i then
-            w109(w75, "Current stats: couldn't read your TPM. Put it manually or use Other Stats.")
-            w90.CanvasPosition = Vector2.new(0, 0)
+            w109("Current stats: couldn't read your TPM. Put it manually or use Other Stats.")
             return
         end
     end
@@ -1393,7 +1516,7 @@ w12(w74.MouseButton1Click, function()
         end
     end
     local n = ""
-    if w24.tok.mode == "cur" then
+    if w24.md.TK then
         n = "Current stats -- Tokens: " .. (a and w15(a) or "?") .. " -- TPM: " .. (b and w15(b) or "?") ..
             " -- Next +1 TPM in " .. g .. " min\n\n"
     end
@@ -1401,18 +1524,29 @@ w12(w74.MouseButton1Click, function()
     if e then s[#s + 1] = e end
     if f then s[#s + 1] = f end
     if p then s[#s + 1] = p end
-    w109(w75, n .. (s[1] and table.concat(s, "\n-- --\n") or "Fill TPM and at least one objective or a time spent to calculate."))
-    w90.CanvasPosition = Vector2.new(0, 0)
+    w109(n .. (s[1] and table.concat(s, "\n-- --\n") or "Fill TPM and at least one objective or a time spent to calculate."))
 end)
 
 w38(w74, w11.org, w11.orgH)
 
 local function w103()
-    local _, a = w101()
-    if w58 and not w60:IsFocused() then
-        w102(w58)
+    local a, b = w101()
+    if w58 and w24.md[w58] then
+        local c = wA(w58)
+        if not w60:IsFocused() then
+            w60.Text = (c.pw ~= "" and c.pw) or "0"
+        end
+        if c.mu and w54.Text ~= c.mu then
+            w54.Text = c.mu
+        end
+        if c.mv ~= nil and w54:GetAttribute("Val") ~= c.mv then
+            w54:SetAttribute("Val", c.mv)
+        end
+        if c.ar and w19[w58][c.ar] and w51:GetAttribute("Idx") ~= c.ar then
+            wB(w58, c.ar)
+        end
     end
-    return a
+    return b
 end
 
 local function w104()
@@ -1420,8 +1554,8 @@ local function w104()
     local c = false
     if a then
         local d = tostring(a)
-        if w24.tok.cur.tokens ~= d then
-            w24.tok.cur.tokens = d
+        if w24.tok.cur.tk ~= d then
+            w24.tok.cur.tk = d
             c = true
         end
         if not w70:IsFocused() and w70.Text ~= d then
@@ -1430,8 +1564,8 @@ local function w104()
     end
     if b then
         local d = tostring(b)
-        if w24.tok.cur.tpm ~= d then
-            w24.tok.cur.tpm = d
+        if w24.tok.cur.tp ~= d then
+            w24.tok.cur.tp = d
             c = true
         end
         if not w71:IsFocused() and w71.Text ~= d then
@@ -1441,19 +1575,52 @@ local function w104()
     return c
 end
 
+w109 = function(a)
+    if w24.view == "Farming" then
+        if w58 then
+            w24.msg[w58] = a
+        end
+        w89.s(a)
+    elseif w24.view == "Tokens" then
+        w24.msg.Tokens = a
+        w90.s(a)
+    end
+    w26()
+end
+
+w.th[#w.th + 1] = task.spawn(function()
+    while true do
+        task.wait(0.1)
+        for _, a in ipairs(w110) do
+            pcall(a)
+        end
+    end
+end)
+
 w.th[#w.th + 1] = task.spawn(function()
     local a = false
     local b = 0
     while true do
         task.wait(1)
         local c = false
-        if w24.fmode == "cur" then
-            local d, e = pcall(w103)
-            if d and e then c = true end
+        local d = false
+        for _, e in ipairs(w20) do
+            if w24.md[e] then
+                d = true
+                break
+            end
         end
-        if w24.tok.mode == "cur" then
-            local f, g = pcall(w104)
-            if f and g then c = true end
+        if d then
+            local f, g = pcall(w103)
+            if f and g then
+                c = true
+            end
+        end
+        if w24.md.TK then
+            local h, i = pcall(w104)
+            if h and i then
+                c = true
+            end
         end
         if c then
             a = true
@@ -1467,17 +1634,20 @@ w.th[#w.th + 1] = task.spawn(function()
 end)
 
 local function w42(a)
-    for _, b in ipairs(w41) do b.Visible = false end
+    for _, b in ipairs(w41) do
+        b.Visible = false
+    end
     w43.Visible = a == "Home"
     w47.Visible = a == "Farming"
     w69.Visible = a == "Tokens"
     w32.Visible = a ~= "Home"
     w31.Text = a == "Home" and "cLTR Calculators" or "cLTR " .. a
     w24.view = a
-    w65(a == "Farming" and w58 and w24.msg[w58] or "")
-    w75(a == "Tokens" and w24.msg.Tokens or "")
-    w89.CanvasPosition = Vector2.new(0, 0)
-    w90.CanvasPosition = Vector2.new(0, 0)
+    if a == "Farming" then
+        w89.s(w58 and w24.msg[w58] or "")
+    elseif a == "Tokens" then
+        w90.s(w24.msg.Tokens or "")
+    end
     w26()
 end
 
@@ -1554,14 +1724,14 @@ w63()
 w95()
 w100()
 w42(w24.view)
-if w24.tok.mode == "cur" then
+if w24.md.TK then
     local a, b = w92()
     if a then
-        w24.tok.cur.tokens = tostring(a)
+        w24.tok.cur.tk = tostring(a)
         w70.Text = tostring(a)
     end
     if b then
-        w24.tok.cur.tpm = tostring(b)
+        w24.tok.cur.tp = tostring(b)
         w71.Text = tostring(b)
     end
 end
