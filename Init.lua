@@ -132,7 +132,7 @@ local function wld()
         w22.icon = b.icon
         w22.mode = b.mode
         w22.rsp = b.rsp == true
-        w22.rtype = (b.rtype == "Risky" or b.rtype == "Safe" or b.rtype == "Normal") and b.rtype or "Normal"
+        w22.rtype = (b.rtype == "Risky" or b.rtype == "Normal") and b.rtype or "Normal"
         w22.hide = b.hide or false
         return true
 end
@@ -1425,39 +1425,72 @@ end
 
 local function wrm()
         w31("R")
-        if not w22.rsp or w22.rtype ~= "Normal" then return end
+        if not w22.rsp then return end
+        local function a()
+                local b = game:GetService("Lighting"):FindFirstChild("Blur")
+                if b then
+                        b.Size = 0
+                        b.Enabled = false
+                end
+                local c = w17:FindFirstChild("IntroGui")
+                if c and c:IsA("ScreenGui") then c.Enabled = false end
+                if w18 then w18.Enabled = true end
+        end
         w19.th.R = task.spawn(function()
-                local a = false
                 local b = false
-                while w22.rsp and w22.rtype == "Normal" and w62 and w62.Parent do
-                        local c = w17:FindFirstChild("IntroGui")
-                        local d = c and c:IsA("ScreenGui") and c.Enabled
-                        local e = w16.Character
-                        local f = e and e:FindFirstChildOfClass("Humanoid")
-                        if d and (not e or not f or f.Health <= 0) then
-                                if not a then
-                                        a = true
-                                        w37("Auto Respawn \xe2\x80\x94 Respawning", w5(80, 220, 120))
-                                end
-                                b = true
-                                wfr({ "Respawn" })
-                                task.wait(0.5)
-                        else
-                                if not d then
-                                        b = false
-                                elseif b then
-                                        b = false
-                                        local g = game:GetService("Lighting"):FindFirstChild("Blur")
-                                        if g then
-                                                g.Size = 0
-                                                g.Enabled = false
+                while w22.rsp and w62 and w62.Parent do
+                        local c = w22.rtype
+                        local d = w17:FindFirstChild("IntroGui")
+                        local e = d and d:IsA("ScreenGui") and d.Enabled
+                        local f = w16.Character
+                        local g = f and f:FindFirstChildOfClass("Humanoid")
+                        local h = not f or not g or g.Health <= 0
+                        if c == "Risky" then
+                                if (f and g and g.Health <= 0) or (e and not f) then
+                                        if not b then
+                                                b = true
+                                                w37("Auto Respawn \xe2\x80\x94 Instant respawn", w5(255, 120, 120))
                                         end
-                                        c.Enabled = false
-                                        if w18 then w18.Enabled = true end
-                                        w37("Auto Respawn \xe2\x80\x94 Restored", w5(80, 220, 120))
+                                        pcall(function()
+                                                local i = game:GetService("SoundService"):FindFirstChild("LocalSoundStorage")
+                                                local j = i and i:FindFirstChild("DeathSound")
+                                                if j then j:Stop() end
+                                        end)
+                                        wfr({ "Respawn" })
+                                        task.wait(0.5)
+                                else
+                                        if b and f and g then
+                                                local i = workspace.CurrentCamera
+                                                if i then
+                                                        i.CameraType = Enum.CameraType.Custom
+                                                        i.CameraSubject = g
+                                                end
+                                                if e then
+                                                        b = false
+                                                        a()
+                                                        w37("Auto Respawn \xe2\x80\x94 Restored", w5(80, 220, 120))
+                                                end
+                                        end
+                                        task.wait(0.1)
                                 end
-                                a = false
-                                task.wait(0.4)
+                        else
+                                if e and h then
+                                        if not b then
+                                                b = true
+                                                w37("Auto Respawn \xe2\x80\x94 Respawning", w5(80, 220, 120))
+                                        end
+                                        wfr({ "Respawn" })
+                                        task.wait(0.5)
+                                else
+                                        if not e then
+                                                b = false
+                                        elseif b then
+                                                b = false
+                                                a()
+                                                w37("Auto Respawn \xe2\x80\x94 Restored", w5(80, 220, 120))
+                                        end
+                                        task.wait(0.4)
+                                end
                         end
                 end
                 w19.th.R = nil
@@ -1476,9 +1509,8 @@ do
         w58(d, w5(45, 32, 62), w5(38, 28, 52), function() return w22.rsp end)
         w52(b, "Respawn Mode", 138)
         local h = {
-                { n = "Risky",  t = "Total animation skip and instantly respawning" },
-                { n = "Safe",   t = "Slower and safer version of the risky" },
-                { n = "Normal", t = "No animation skip just basic" }
+                { n = "Risky",  t = "Instant respawn on death, skips all animations" },
+                { n = "Normal", t = "Basic respawn when the intro screen appears" }
         }
         w22.rtype = w22.rtype or "Normal"
         local i, j = w22.rtype, {}
