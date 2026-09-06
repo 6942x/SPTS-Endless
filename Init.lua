@@ -1423,6 +1423,47 @@ do
         w58(d, w5(45, 32, 62), w5(38, 28, 52), function() return w22.weight end)
 end
 
+local function wrm()
+        w31("R")
+        if not w22.rsp or w22.rtype ~= "Normal" then return end
+        w19.th.R = task.spawn(function()
+                local a = false
+                local b = false
+                while w22.rsp and w22.rtype == "Normal" and w62 and w62.Parent do
+                        local c = w17:FindFirstChild("IntroGui")
+                        local d = c and c:IsA("ScreenGui") and c.Enabled
+                        local e = w16.Character
+                        local f = e and e:FindFirstChildOfClass("Humanoid")
+                        if d and (not e or not f or f.Health <= 0) then
+                                if not a then
+                                        a = true
+                                        w37("Auto Respawn \xe2\x80\x94 Respawning", w5(80, 220, 120))
+                                end
+                                b = true
+                                wfr({ "Respawn" })
+                                task.wait(0.5)
+                        else
+                                if not d then
+                                        b = false
+                                elseif b then
+                                        b = false
+                                        local g = game:GetService("Lighting"):FindFirstChild("Blur")
+                                        if g then
+                                                g.Size = 0
+                                                g.Enabled = false
+                                        end
+                                        c.Enabled = false
+                                        if w18 then w18.Enabled = true end
+                                        w37("Auto Respawn \xe2\x80\x94 Restored", w5(80, 220, 120))
+                                end
+                                a = false
+                                task.wait(0.4)
+                        end
+                end
+                w19.th.R = nil
+        end)
+end
+
 do
         local a = w89["Auto Respawn"]
         local b = w51(a, 316, 1)
@@ -1478,6 +1519,7 @@ do
                         i = m.n
                         w22.rtype = m.n
                         k()
+                        wrm()
                         if w22.rsp then
                                 c.Text = "Auto respawn armed \xe2\x80\x94 mode: " .. m.n
                         end
@@ -1499,6 +1541,7 @@ do
                 w56(g, w22.rsp)
                 c.Text = w22.rsp and "Auto respawn armed \xe2\x80\x94 mode: " .. i or "Auto respawn inactive"
                 w37(w22.rsp and "Auto Respawn enabled" or "Auto Respawn disabled", w22.rsp and w5(80, 220, 120) or w5(180, 180, 180))
+                wrm()
                 wsq()
         end)
         w100 = {}
@@ -1507,6 +1550,7 @@ do
                 k()
                 w56(g, w22.rsp)
                 c.Text = w22.rsp and "Auto respawn armed \xe2\x80\x94 mode: " .. i or "Auto respawn inactive"
+                wrm()
         end
 end
 
