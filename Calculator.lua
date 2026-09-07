@@ -44,6 +44,7 @@ local w11 = {
     vio = w8(124, 77, 255),
     org = w8(245, 158, 11),
     orgH = w8(251, 191, 36),
+    puH = w8(187, 134, 252),
     wht = w8(255, 255, 255)
 }
 
@@ -225,7 +226,8 @@ local w24 = {
     key = "G", pos = nil, icon = nil, pw = "", cat = nil, view = "Home",
     md = {}, sp = {}, gn = {}, mem = {},
     tok = {cur = {}, oth = {}},
-    msg = {FS = "", BT = "", MS = "", JF = "", PP = "", Tokens = ""}
+    ml = {cur = {}, oth = {}, ov = {}, tg = nil, tm = nil},
+    msg = {FS = "", BT = "", MS = "", JF = "", PP = "", Tokens = "", ML = ""}
 }
 for _, a in ipairs(w20) do
     w24.md[a] = false
@@ -234,6 +236,7 @@ for _, a in ipairs(w20) do
     w24.mem[a] = {cur = {}, oth = {}}
 end
 w24.md.TK = false
+w24.md.ML = false
 
 local function wA(a)
     local b = w24.mem[a]
@@ -313,7 +316,7 @@ local function w25()
         w24.icon = {X = d.icon.X, Y = d.icon.Y}
     end
     w24.pw = tostring(d.pw or d.power or "")
-    if d.view == "Farming" or d.view == "Tokens" then
+    if d.view == "Farming" or d.view == "Tokens" or d.view == "Multipliers" then
         w24.view = d.view
     end
     if w19[d.cat] then
@@ -347,13 +350,34 @@ local function w25()
     else
         w24.md.TK = h
     end
+    if type(d.md) == "table" then
+        w24.md.ML = d.md.ML == true or (d.md.ML == nil and h)
+    else
+        w24.md.ML = h
+    end
     if type(d.tok) == "table" then
         g(d.tok)
+    end
+    if type(d.ml) == "table" then
+        for _, k in ipairs(w20) do
+            local l = (type(d.ml.cur) == "table" and d.ml.cur[k]) or nil
+            local m = (type(d.ml.oth) == "table" and d.ml.oth[k]) or nil
+            if l ~= nil then w24.ml.cur[k] = tostring(l) end
+            if m ~= nil then w24.ml.oth[k] = tostring(m) end
+        end
+        if type(d.ml.ov) == "table" then
+            for k, l in pairs(d.ml.ov) do
+                if l == true then w24.ml.ov[k] = true end
+            end
+        end
+        local n = tonumber(d.ml.tg)
+        if n then w24.ml.tg = n end
+        if d.ml.tm ~= nil then w24.ml.tm = tostring(d.ml.tm) end
     end
     if type(d.msg) == "table" then
         for k, l in pairs(d.msg) do
             local m = tostring(l)
-            if w19[k] or k == "Tokens" then
+            if w19[k] or k == "Tokens" or k == "ML" then
                 w24.msg[k] = m
             elseif k == "Farming" and m ~= "" and w19[w24.cat] then
                 w24.msg[w24.cat] = m
@@ -713,27 +737,39 @@ w44.TextXAlignment = Enum.TextXAlignment.Center
 
 local w45 = w9("TextButton", w43)
 w45.Text = "Farming"
-w45.Size = w7(0, 210, 0, 100)
+w45.Size = w7(0, 140, 0, 100)
 w45.Position = w7(0, 20, 0, 210)
 w45.BackgroundColor3 = w11.org
 w45.TextColor3 = w11.wht
 w45.Font = w10
-w45.TextSize = 22
+w45.TextSize = 20
 w45.AutoButtonColor = false
 w9("UICorner", w45).CornerRadius = UDim.new(0, 8)
 w38(w45, w11.org, w11.orgH)
 
 local w46 = w9("TextButton", w43)
 w46.Text = "Tokens"
-w46.Size = w7(0, 210, 0, 100)
-w46.Position = w7(0, 250, 0, 210)
+w46.Size = w7(0, 140, 0, 100)
+w46.Position = w7(0, 170, 0, 210)
 w46.BackgroundColor3 = w11.cy
 w46.TextColor3 = w11.wht
 w46.Font = w10
-w46.TextSize = 22
+w46.TextSize = 20
 w46.AutoButtonColor = false
 w9("UICorner", w46).CornerRadius = UDim.new(0, 8)
 w38(w46, w11.cy, w11.cyH)
+
+local w111 = w9("TextButton", w43)
+w111.Text = "Multipliers"
+w111.Size = w7(0, 140, 0, 100)
+w111.Position = w7(0, 320, 0, 210)
+w111.BackgroundColor3 = w11.pu
+w111.TextColor3 = w11.wht
+w111.Font = w10
+w111.TextSize = 20
+w111.AutoButtonColor = false
+w9("UICorner", w111).CornerRadius = UDim.new(0, 8)
+w38(w111, w11.pu, w11.puH)
 
 local w47 = w9("Frame", w29)
 w47.Name = "FarmingView"
@@ -1525,6 +1561,257 @@ end)
 
 w38(w74, w11.org, w11.orgH)
 
+local w112 = w9("Frame", w29)
+w112.Name = "MultipliersView"
+w112.Size = w7(1, 0, 1, 0)
+w112.BackgroundTransparency = 1
+w112.Visible = false
+
+local w119 = {
+    {2, 100}, {4, 200}, {8, 500},
+    {16, 1000}, {32, 2000}, {64, 5000},
+    {128, 10000}, {256, 15000}, {512, 20000},
+    {1024, 50000}, {2048, 100000}, {4096, 200000},
+    {8192, 500000}, {16384, 1000000}, {32768, 2000000},
+    {65536, 5000000}, {131072, 10000000}, {262144, 20000000},
+    {524288, 50000000}, {1048576, 100000000}, {2097152, 200000000},
+    {4194304, 500000000}, {8388608, 1000000000}, {16777216, 2000000000},
+    {33554432, 5000000000}, {67108864, 10000000000}, {134217728, 20000000000},
+    {268435456, 50000000000}, {536870912, 100000000000}, {1073741824, 200000000000}
+}
+
+local function wM(a)
+    if not a or a <= 0 then return nil end
+    local b = math.clamp(math.floor(math.log(a) / math.log(2) + 0.5), 1, #w119)
+    return w119[b][1]
+end
+
+local function wN(a)
+    if not a or a == "" then return nil end
+    local b = w16(a)
+    return b and wM(b) or nil
+end
+
+for _, a in ipairs(w20) do
+    for _, b in ipairs({w24.ml.cur, w24.ml.oth}) do
+        local c = wN(b[a])
+        b[a] = c and tostring(c) or nil
+    end
+end
+
+local w113 = {}
+
+local function w114(a, b)
+    local c, d, e = w40(w112, a, b, w41)
+    for _, f in ipairs(w119) do
+        w39(e, "x" .. w15(f[1]), function()
+            c.Text = "x" .. w15(f[1])
+            c:SetAttribute("Val", f[1])
+            d.Visible = false
+            local h = w24.md.ML and w24.ml.cur or w24.ml.oth
+            h[a] = tostring(f[1])
+            if w24.md.ML then
+                w24.ml.ov[a] = true
+            end
+            w26()
+        end)
+    end
+    local f = w24.md.ML and w24.ml.cur or w24.ml.oth
+    local g = wN(f[a])
+    if g then
+        c.Text = "x" .. w15(g)
+        c:SetAttribute("Val", g)
+    end
+    w113[a] = c
+end
+
+w114("FS", 56)
+w114("BT", 102)
+w114("MS", 148)
+w114("JF", 194)
+w114("PP", 240)
+
+local function w115()
+    local a = w24.md.ML and w24.ml.cur or w24.ml.oth
+    for _, b in ipairs(w20) do
+        local c = w113[b]
+        local d = wN(a[b])
+        if d then
+            c.Text = "x" .. w15(d)
+            c:SetAttribute("Val", d)
+        else
+            c.Text = "Select"
+            c:SetAttribute("Val", nil)
+        end
+    end
+end
+
+local w116, w117, w118 = w40(w112, "Objective", 286, w41)
+
+for _, a in ipairs(w119) do
+    w39(w118, "x" .. w15(a[1]) .. " -- " .. w15(a[2]), function()
+        w116.Text = "x" .. w15(a[1]) .. " -- " .. w15(a[2])
+        w116:SetAttribute("Val", a[1])
+        w117.Visible = false
+        w24.ml.tg = a[1]
+        w24.ml.tm = w116.Text
+        w26()
+    end)
+end
+
+if w24.ml.tg then
+    w116.Text = w24.ml.tm or ("x" .. w15(w24.ml.tg))
+    w116:SetAttribute("Val", w24.ml.tg)
+end
+
+local w120 = w9("TextButton", w112)
+w120.Text = "Use Current Stats"
+w120.Size = w7(0, 210, 0, 32)
+w120.Position = w7(0, 20, 0, 332)
+w120.BackgroundColor3 = w11.btn
+w120.TextColor3 = w11.wht
+w120.Font = w10
+w120.TextSize = 18
+w120.AutoButtonColor = false
+w9("UICorner", w120).CornerRadius = UDim.new(0, 4)
+
+local w121 = w9("TextButton", w112)
+w121.Text = "Use Other Stats"
+w121.Size = w7(0, 210, 0, 32)
+w121.Position = w7(0, 250, 0, 332)
+w121.BackgroundColor3 = w11.btn
+w121.TextColor3 = w11.wht
+w121.Font = w10
+w121.TextSize = 18
+w121.AutoButtonColor = false
+w9("UICorner", w121).CornerRadius = UDim.new(0, 4)
+
+local function w122()
+    local a = w24.md.ML
+    w120.BackgroundColor3 = a and w11.grn or w11.btn
+    w121.BackgroundColor3 = a and w11.btn or w11.vio
+end
+
+local function w123()
+    local a = w97()
+    local b, c = false, false
+    for _, d in ipairs(w20) do
+        local e = a[d]
+        if e and e.m then
+            b = true
+            if not w24.ml.ov[d] then
+                local f = wM(e.m)
+                if f and w24.ml.cur[d] ~= tostring(f) then
+                    w24.ml.cur[d] = tostring(f)
+                    c = true
+                end
+            end
+        end
+    end
+    return b, c
+end
+
+local function w124()
+    local a, b = w123()
+    if a and w24.msg.ML and w24.msg.ML:find("Couldn't read") then
+        w109("")
+    end
+    for _, c in ipairs(w20) do
+        local d = w113[c]
+        local e = wN(w24.ml.cur[c])
+        if d and e and d:GetAttribute("Val") ~= e then
+            d.Text = "x" .. w15(e)
+            d:SetAttribute("Val", e)
+        end
+    end
+    return b
+end
+
+w12(w120.MouseButton1Click, function()
+    if w24.md.ML then return end
+    w24.md.ML = true
+    w122()
+    for _, a in ipairs(w20) do
+        w24.ml.ov[a] = nil
+    end
+    local a = w123()
+    w115()
+    w26()
+    if a then
+        if w24.msg.ML and w24.msg.ML:find("Couldn't read") then
+            w109("")
+        end
+    else
+        w109("Couldn't read your multipliers. Select them from the dropdowns.")
+    end
+end)
+
+w12(w121.MouseButton1Click, function()
+    if not w24.md.ML then return end
+    w24.md.ML = false
+    w122()
+    w115()
+    w26()
+    if w24.msg.ML and w24.msg.ML:find("Couldn't read") then
+        w109("")
+    end
+end)
+
+local w125 = w9("TextButton", w112)
+w125.Text = "Calculate"
+w125.Size = w7(0, 440, 0, 40)
+w125.Position = w7(0, 20, 0, 378)
+w125.BackgroundColor3 = w11.org
+w125.TextColor3 = w11.wht
+w125.Font = w10
+w125.TextSize = 18
+w125.AutoButtonColor = false
+w9("UICorner", w125).CornerRadius = UDim.new(0, 4)
+
+local w126 = wR(w112, 424, 196)
+
+w12(w125.MouseButton1Click, function()
+    if w24.md.ML then
+        w124()
+    end
+    local a = w116:GetAttribute("Val")
+    if not a then
+        w109("Select an objective multiplier.")
+        return
+    end
+    local b, c, d = {}, 0, 0
+    for _, e in ipairs(w20) do
+        local f = (w24.md.ML and w24.ml.cur or w24.ml.oth)[e]
+        local g = wN(f)
+        if not g then
+            b[#b + 1] = e .. ": no multiplier"
+        else
+            d = d + 1
+            local h, i = 0, 0
+            for _, j in ipairs(w119) do
+                if j[1] > g and j[1] <= a then
+                    h = h + j[2]
+                    i = i + 1
+                end
+            end
+            if i == 0 then
+                b[#b + 1] = e .. ": already x" .. w15(g) .. " or higher"
+            else
+                b[#b + 1] = e .. ": " .. w15(h) .. " Tokens (" .. i .. (i > 1 and " upgrades)" or " upgrade)")
+                c = c + h
+            end
+        end
+    end
+    if d == 0 then
+        w109("Multipliers -- select your multipliers or use Current Stats.")
+        return
+    end
+    w109("Multipliers -- objective x" .. w15(a) .. "\n" .. table.concat(b, "\n") ..
+        (c > 0 and "\nTotal: " .. w15(c) .. " Tokens" or "\nNothing to buy for this objective."))
+end)
+
+w38(w125, w11.org, w11.orgH)
+
 local function w103()
     local a, b = w101()
     if w58 and w24.md[w58] then
@@ -1580,6 +1867,9 @@ w109 = function(a)
     elseif w24.view == "Tokens" then
         w24.msg.Tokens = a
         w90.s(a)
+    elseif w24.view == "Multipliers" then
+        w24.msg.ML = a
+        w126.s(a)
     end
     w26()
 end
@@ -1618,6 +1908,12 @@ w.th[#w.th + 1] = task.spawn(function()
                 c = true
             end
         end
+        if w24.md.ML then
+            local j, k = pcall(w124)
+            if j and k then
+                c = true
+            end
+        end
         if c then
             a = true
         end
@@ -1636,6 +1932,7 @@ local function w42(a)
     w43.Visible = a == "Home"
     w47.Visible = a == "Farming"
     w69.Visible = a == "Tokens"
+    w112.Visible = a == "Multipliers"
     w32.Visible = a ~= "Home"
     w31.Text = a == "Home" and "cLTR Calculators" or "cLTR " .. a
     w24.view = a
@@ -1643,12 +1940,15 @@ local function w42(a)
         w89.s(w58 and w24.msg[w58] or "")
     elseif a == "Tokens" then
         w90.s(w24.msg.Tokens or "")
+    elseif a == "Multipliers" then
+        w126.s(w24.msg.ML or "")
     end
     w26()
 end
 
 w12(w45.MouseButton1Click, function() w42("Farming") end)
 w12(w46.MouseButton1Click, function() w42("Tokens") end)
+w12(w111.MouseButton1Click, function() w42("Multipliers") end)
 w12(w32.MouseButton1Click, function() w42("Home") end)
 
 local w78
@@ -1719,6 +2019,7 @@ w12(w33.MouseButton1Click, w37)
 w63()
 w95()
 w100()
+w122()
 w42(w24.view)
 if w24.md.TK then
     local a, b = w92()
@@ -1730,5 +2031,8 @@ if w24.md.TK then
         w24.tok.cur.tp = tostring(b)
         w71.Text = tostring(b)
     end
+end
+if w24.md.ML then
+    w124()
 end
 w82()
