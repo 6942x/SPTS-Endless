@@ -102,9 +102,9 @@ local function w17(a)
     if not a or a ~= a then return "0d 0h 0m" end
     if a == math.huge or a <= -1e18 then return "Never" end
     if a < 0 then a = 0 end
-    local b = math.floor(a / 86400)
+    local b = math.floor(a / 8.64e4)
     if b >= 1e6 then return w15(b) .. " days" end
-    local c = math.floor((a % 86400) / 3600)
+    local c = math.floor((a % 8.64e4) / 3600)
     local d = math.floor((a % 3600) / 60)
     return string.format("%.0fd %.0fh %.0fm", b, c, d)
 end
@@ -224,7 +224,7 @@ end
 local w23 = "TrainingCalc/" .. w5.Name .. ".json"
 local w24 = {
     key = "G", pos = nil, icon = nil, pw = "", cat = nil, view = "Home",
-    md = {}, sp = {}, gn = {}, mem = {},
+    md = {}, sp = {}, gn = {}, st = {}, mem = {},
     tok = {cur = {}, oth = {}},
     ml = {cur = {}, oth = {}, ov = {}, tg = nil, tm = nil},
     msg = {FS = "", BT = "", MS = "", JF = "", PP = "", Tokens = "", ML = ""}
@@ -233,6 +233,7 @@ for _, a in ipairs(w20) do
     w24.md[a] = false
     w24.sp[a] = false
     w24.gn[a] = false
+    w24.st[a] = false
     w24.mem[a] = {cur = {}, oth = {}}
 end
 w24.md.TK = false
@@ -325,6 +326,7 @@ local function w25()
     local h = d.fmode == "cur"
     local i = d.speed == true
     local j = d.train == true
+    local l = d.stay == true
     for _, k in ipairs(w20) do
         if type(d.md) == "table" then
             w24.md[k] = d.md[k] == true or (d.md[k] == nil and h)
@@ -340,6 +342,11 @@ local function w25()
             w24.gn[k] = d.gn[k] == true or (d.gn[k] == nil and j)
         else
             w24.gn[k] = j
+        end
+        if type(d.st) == "table" then
+            w24.st[k] = d.st[k] == true or (d.st[k] == nil and l)
+        else
+            w24.st[k] = l
         end
         if type(d.mem) == "table" and type(d.mem[k]) == "table" then
             f(k, d.mem[k])
@@ -550,29 +557,6 @@ end
 
 local w41 = {}
 
-local function wS(a)
-    local b = tostring(a or "")
-    local c = {}
-    for d in b:gmatch("[^\n]*") do
-        c[#c + 1] = d
-    end
-    while #c > 0 and c[#c] == "" do
-        c[#c] = nil
-    end
-    if #c == 0 then c[1] = "" end
-    local e = math.ceil(#c / 3)
-    local f = {{}, {}, {}}
-    for g, h in ipairs(c) do
-        local i = math.min(3, math.floor((g - 1) / e) + 1)
-        table.insert(f[i], h)
-    end
-    local j = {}
-    for g = 1, 3 do
-        j[g] = table.concat(f[g], "\n")
-    end
-    return j
-end
-
 local function wR(a, b, c)
     local d = w9("ScrollingFrame", a)
     d.Size = w7(0, 440, 0, c)
@@ -592,57 +576,60 @@ local function wR(a, b, c)
 
     local f = w9("UIListLayout", d)
     f.SortOrder = Enum.SortOrder.LayoutOrder
-    f.Padding = UDim.new(0, 6)
+    f.Padding = UDim.new(0, 0)
 
     local g = {}
-    for h = 1, 3 do
-        local i = w9("TextLabel", d)
-        i.Size = w7(1, 0, 0, 0)
-        i.AutomaticSize = Enum.AutomaticSize.Y
-        i.BackgroundTransparency = 1
-        i.BorderSizePixel = 0
-        i.Font = w10
-        i.TextSize = 16
-        i.TextWrapped = true
-        i.TextColor3 = w11.wht
-        i.TextXAlignment = Enum.TextXAlignment.Left
-        i.TextYAlignment = Enum.TextYAlignment.Top
-        i.LayoutOrder = h
-        g[h] = i
-    end
-
-    local j = function()
+    local h = function()
         local k = 8
-        local l = 0
         for _, m in ipairs(g) do
             if m.Visible then
                 k = k + m.AbsoluteSize.Y
-                l = l + 1
             end
-        end
-        if l > 1 then
-            k = k + (l - 1) * 6
         end
         if d.CanvasSize.Y.Offset ~= k then
             d.CanvasSize = w7(0, 0, 0, k)
         end
     end
-    for _, m in ipairs(g) do
-        w12(m:GetPropertyChangedSignal("AbsoluteSize"), j)
+    w110[#w110 + 1] = h
+
+    local i = function(j)
+        local k = g[j]
+        if not k then
+            k = w9("TextLabel", d)
+            k.Size = w7(1, 0, 0, 0)
+            k.AutomaticSize = Enum.AutomaticSize.Y
+            k.BackgroundTransparency = 1
+            k.BorderSizePixel = 0
+            k.Font = w10
+            k.TextSize = 16
+            k.LineHeight = 16
+            k.TextWrapped = true
+            k.TextColor3 = w11.wht
+            k.TextXAlignment = Enum.TextXAlignment.Left
+            k.TextYAlignment = Enum.TextYAlignment.Top
+            k.LayoutOrder = j
+            w12(k:GetPropertyChangedSignal("AbsoluteSize"), h)
+            g[j] = k
+        end
+        return k
     end
-    w110[#w110 + 1] = j
 
     local n = function(o)
-        local p = wS(o)
-        for q = 1, 3 do
-            g[q].Text = p[q]
-            g[q].Visible = p[q] ~= ""
+        local p = 0
+        for q in tostring(o or ""):gmatch("[^\n]+") do
+            p = p + 1
+            local r = i(p)
+            r.Text = q
+            r.Visible = true
         end
-        j()
+        for q = #g, p + 1, -1 do
+            g[q].Visible = false
+        end
+        h()
         d.CanvasPosition = Vector2.new(0, 0)
     end
     n("")
-    return {fr = d, ls = g, s = n}
+    return {s = n}
 end
 
 if w6:FindFirstChild("cLTRCalculators") then
@@ -872,17 +859,32 @@ w62.TextSize = 18
 w62.AutoButtonColor = false
 w9("UICorner", w62).CornerRadius = UDim.new(0, 4)
 
+local w127 = w9("TextButton", w47)
+w127.Text = "Stay on this area: OFF"
+w127.Size = w7(0, 440, 0, 32)
+w127.Position = w7(0, 20, 0, 378)
+w127.BackgroundColor3 = w11.btn
+w127.TextColor3 = w11.wht
+w127.Font = w10
+w127.TextSize = 18
+w127.AutoButtonColor = false
+w9("UICorner", w127).CornerRadius = UDim.new(0, 4)
+
 local function w63()
     if w58 then
         w61.Text = "Speed 2x: " .. (w24.sp[w58] and "ON" or "OFF")
         w61.BackgroundColor3 = w24.sp[w58] and w11.cy or w11.btn
         w62.Text = "Training 2x: " .. (w24.gn[w58] and "ON" or "OFF")
         w62.BackgroundColor3 = w24.gn[w58] and w11.pu or w11.btn
+        w127.Text = "Stay on this area: " .. (w24.st[w58] and "ON" or "OFF")
+        w127.BackgroundColor3 = w24.st[w58] and w11.red or w11.btn
     else
         w61.Text = "Speed 2x: --"
         w61.BackgroundColor3 = w11.btn
         w62.Text = "Training 2x: --"
         w62.BackgroundColor3 = w11.btn
+        w127.Text = "Stay on this area: --"
+        w127.BackgroundColor3 = w11.btn
     end
 end
 
@@ -906,10 +908,20 @@ w12(w62.MouseButton1Click, function()
     w26()
 end)
 
+w12(w127.MouseButton1Click, function()
+    if not w58 then
+        w109("Select a category first.")
+        return
+    end
+    w24.st[w58] = not w24.st[w58]
+    w63()
+    w26()
+end)
+
 local w64 = w9("TextButton", w47)
 w64.Text = "Calculate"
 w64.Size = w7(0, 440, 0, 40)
-w64.Position = w7(0, 20, 0, 378)
+w64.Position = w7(0, 20, 0, 424)
 w64.BackgroundColor3 = w11.org
 w64.TextColor3 = w11.wht
 w64.Font = w10
@@ -917,7 +929,7 @@ w64.TextSize = 18
 w64.AutoButtonColor = false
 w9("UICorner", w64).CornerRadius = UDim.new(0, 4)
 
-local w89 = wR(w47, 424, 196)
+local w89 = wR(w47, 470, 150)
 
 local w66 = {}
 for a = 0, 37 do
@@ -1004,7 +1016,7 @@ local function w101()
                 f.cur.mv = e.m
                 b = true
             end
-            if w24.md[d] then
+            if w24.md[d] and not w24.st[d] then
                 local h = w16(f.cur.pw)
                 if h and h > 0 then
                     local i = w91(d, h)
@@ -1153,7 +1165,7 @@ w12(w64.MouseButton1Click, function()
                 w54:SetAttribute("Val", b.m)
             end
             local d = w16(c.pw)
-            if d and d > 0 then
+            if d and d > 0 and not w24.st[w58] then
                 local e = w91(w58, d)
                 if c.ar ~= e then
                     c.ar = e
@@ -1189,6 +1201,33 @@ w12(w64.MouseButton1Click, function()
             return
         end
         local f = e
+        if w24.st[w58] then
+            local g = w16(a)
+            local h = w51:GetAttribute("Boost")
+            local i = g and g * c or nil
+            if i and w24.gn[w58] and h then
+                i = i * 2
+            end
+            local j = i and (d - f) / i or nil
+            if j and w24.sp[w58] and h then
+                j = j / 2
+            end
+            if not j then
+                w109("Power objective -- staying in " .. w19[w58][b].name .. ": ?" ..
+                    "\n-- ? = unknown area multiplier")
+                return
+            end
+            w109("Power objective -- " .. w15(f) .. " to " .. w15(d) .. " -- Staying in " .. w19[w58][b].name ..
+                "\nGain per second: " .. w15(i) ..
+                "\nGain per minute: " .. w15(i * 60) ..
+                "\nGain per hour: " .. w15(i * 3600) ..
+                "\nGain per day: " .. w15(i * 8.64e4) ..
+                "\nGain per week: " .. w15(i * 6.048e5) ..
+                "\nGain per month: " .. w15(i * 2.592e6) ..
+                "\nGain per year: " .. w15(i * 3.1536e7) ..
+                "\nTotal: " .. w17(j))
+            return
+        end
         local g, h, i = 0, {}, false
         local function j(m, n)
             local o = w91(w58, m)
@@ -1239,11 +1278,18 @@ w12(w64.MouseButton1Click, function()
     local i = f and math.max(0, f - (w16(w60.Text) or 0)) or 0
     local j = f and i / h or 0
     if w24.sp[w58] and e then j = j / 2 end
-    local k = f and "Estimated time to next area: " .. w17(j) or "Last area selected."
+    local k
+    if w24.st[w58] then
+        k = "Staying in this area -- put a Power Objective to calculate the time."
+    elseif f then
+        k = "Estimated time to next area: " .. w17(j)
+    else
+        k = "Last area selected."
+    end
     w109("Production per second: " .. w15(h) ..
         "\nPer minute: " .. w15(h * 60) ..
         "\nPer hour: " .. w15(h * 3600) ..
-        "\nPer day: " .. w15(h * 86400) ..
+        "\nPer day: " .. w15(h * 8.64e4) ..
         "\n" .. k)
 end)
 
@@ -1351,7 +1397,7 @@ local function w108(a)
         local f = tonumber(d)
         if f then
             c = true
-            b = b + f * (e == "w" and 10080 or e == "d" and 1440 or e == "h" and 60 or e == "m" and 1 or 1 / 60)
+            b = b + f * (e == "w" and 1.008e4 or e == "d" and 1440 or e == "h" and 60 or e == "m" and 1 or 1 / 60)
         end
     end
     if c then return b end
@@ -1570,14 +1616,14 @@ w112.Visible = false
 local w119 = {
     {2, 100}, {4, 200}, {8, 500},
     {16, 1000}, {32, 2000}, {64, 5000},
-    {128, 10000}, {256, 15000}, {512, 20000},
-    {1024, 50000}, {2048, 100000}, {4096, 200000},
-    {8192, 500000}, {16384, 1000000}, {32768, 2000000},
-    {65536, 5000000}, {131072, 10000000}, {262144, 20000000},
-    {524288, 50000000}, {1048576, 100000000}, {2097152, 200000000},
-    {4194304, 500000000}, {8388608, 1000000000}, {16777216, 2000000000},
-    {33554432, 5000000000}, {67108864, 10000000000}, {134217728, 20000000000},
-    {268435456, 50000000000}, {536870912, 100000000000}, {1073741824, 200000000000}
+    {128, 1e4}, {256, 1.5e4}, {512, 2e4},
+    {1024, 5e4}, {2048, 1e5}, {4096, 2e5},
+    {8192, 5e5}, {1.6384e4, 1e6}, {3.2768e4, 2e6},
+    {6.5536e4, 5e6}, {1.31072e5, 1e7}, {2.62144e5, 2e7},
+    {5.24288e5, 5e7}, {1.048576e6, 1e8}, {2.097152e6, 2e8},
+    {4.194304e6, 5e8}, {8.388608e6, 1e9}, {1.6777216e7, 2e9},
+    {3.3554432e7, 5e9}, {6.7108864e7, 1e10}, {1.34217728e8, 2e10},
+    {2.68435456e8, 5e10}, {5.36870912e8, 1e11}, {1.073741824e9, 2e11}
 }
 
 local function wM(a)
