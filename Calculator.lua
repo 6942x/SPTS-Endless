@@ -221,6 +221,92 @@ local function w91(a, b)
     return c
 end
 
+local wW = {
+    {name = "1e2 LB", ms = "1e2", jf = "5e3", mm = "x2", jm = "x2"},
+    {name = "1e0 TON", ms = "5e3", jf = "2e5", mm = "x5", jm = "x5"},
+    {name = "1e1 TON", ms = "5e5", jf = "2e6", mm = "x10", jm = "x10"},
+    {name = "1e2 TON", ms = "1e7", jf = "1e7", mm = "x20", jm = "x20"},
+    {name = "1e3 TON", ms = "1e8", jf = "2e8", mm = "x150", jm = "x150"},
+    {name = "1e4 TON", ms = "1e9", jf = "1e9", mm = "x750", jm = "x750"},
+    {name = "1e5 TON", ms = "1e10", jf = "1e10", mm = "x3.5K", jm = "x3.5K"},
+    {name = "1e6 TON", ms = "1e11", jf = "1e11", mm = "x18K", jm = "x18K"},
+    {name = "1e7 TON", ms = "1e12", jf = "1e12", mm = "x90K", jm = "x90K"},
+    {name = "1e9 TON", ms = "1e13", jf = "1e13", mm = "x400K", jm = "x400K"},
+    {name = "1e11 TON", ms = "2.56e28", jf = "1.54e28", mm = "x9.32 Qi", jm = "x1.35 Qi"},
+    {name = "1e13 TON", ms = "0e0", jf = "6e26", jm = "x21.9 Qi"},
+    {name = "1e15 TON", ms = "1.68e32", jf = "2.221e31", mm = "x1.569 Sx", jm = "x436.9 Qi"},
+    {name = "1e17 TON", ms = "4.288e33", jf = "8.48e31", mm = "x20.38 Sx", jm = "x7.869 Sx"},
+    {name = "1e19 TON", ms = "1.082e34", jf = "3.226e33", mm = "x264.7 Sx", jm = "x141.9 Sx"},
+    {name = "1e21 TON", ms = "2.823e36", jf = "1.229e36", mm = "x3.437 Sp", jm = "x2.552 Sp"},
+    {name = "1e23 TON", ms = "7.02e37", jf = "4.683e37", mm = "x44.63 Sp", jm = "x45.89 Sp"},
+    {name = "1e25 TON", ms = "1.852e39", jf = "1.785e39", mm = "x579.6 Sp", jm = "x825.3 Sp"},
+    {name = "1e28 TON", ms = "4.744e39", jf = "6.8e39", mm = "x7.527 Oc", jm = "x14.84 Oc"}
+}
+local wWst = {MS = true, JF = true}
+
+local function wWn(a)
+    local b = string.match(a, "^(%S+)")
+    local c = b and w16(b)
+    if c then
+        return a .. " - " .. w15(c) .. string.sub(a, #b + 1)
+    end
+    return a
+end
+
+local function wW91(a, b)
+    local c = nil
+    for d, e in ipairs(wW) do
+        local f = w16(e.ms)
+        local g = w16(e.jf)
+        local h = f == 0 or (a ~= nil and f ~= nil and f <= a)
+        local i = g == 0 or (b ~= nil and g ~= nil and g <= b)
+        if h and i then
+            c = d
+        end
+    end
+    return c
+end
+
+local wSm = {}
+
+local function wSmg(a)
+    if wSm[a] then
+        return wSm[a]
+    end
+    local b = {}
+    if wWst[a] then
+        local c = w16(a == "MS" and wW[1].ms or wW[1].jf)
+        if c and c > 0 then
+            b[#b + 1] = {nm = "No Weight", mu = "x1", bo = false, th = 0}
+        end
+        for d, e in ipairs(wW) do
+            local f = w16(a == "MS" and e.ms or e.jf)
+            if f and f > 0 then
+                local g = a == "MS" and e.mm or e.jm
+                b[#b + 1] = {nm = e.name, dn = wWn(e.name), mu = g or "?", bo = false, th = f}
+            end
+        end
+    end
+    for d, e in ipairs(w19[a]) do
+        b[#b + 1] = {nm = e.name, mu = e.multi, bo = not w22[a] or d >= w22[a], th = w16(a == "BT" and e.min or e.req)}
+    end
+    table.sort(b, function(c, d) return (c.th or 0) < (d.th or 0) end)
+    wSm[a] = b
+    return b
+end
+
+local function wSm91(a, b)
+    local c = wSmg(a)
+    local d = nil
+    for e = 1, #c do
+        local f = c[e].th
+        if f and f <= b then
+            d = e
+        end
+    end
+    return d
+end
+
 local w23 = "TrainingCalc/" .. w5.Name .. ".json"
 local w24 = {
     key = "G", pos = nil, icon = nil, pw = "", cat = nil, view = "Home",
@@ -289,6 +375,10 @@ local function w25()
         i.oth.mu = o ~= nil and tostring(o) or nil
         i.cur.mv = tonumber(e("mv", j, h) or e("val", j, h))
         i.oth.mv = tonumber(e("mv", k, h) or e("val", k, h))
+        local p = tonumber(e("wt", j, h))
+        local q = tonumber(e("wt", k, h))
+        i.cur.wt = p and math.floor(p) or nil
+        i.oth.wt = q and math.floor(q) or nil
     end
 
     local function g(h)
@@ -434,6 +524,8 @@ local function w36(a, b)
     end)
 end
 
+local wH = 630
+
 local function w37()
     if w84 then return end
     w84 = true
@@ -461,7 +553,7 @@ local function w37()
             w29.Size = w7(0, 0, 0, 0)
             w29.BackgroundTransparency = 1
             w13(w29, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = w7(0, 480, 0, 630),
+                Size = w7(0, 480, 0, wH),
                 BackgroundTransparency = 0
             })
             task.wait(0.3)
@@ -552,7 +644,7 @@ local function w40(a, b, c, d)
         end
     end)
 
-    return f, g, h
+    return f, g, h, e
 end
 
 local w41 = {}
@@ -629,7 +721,7 @@ local function wR(a, b, c)
         d.CanvasPosition = Vector2.new(0, 0)
     end
     n("")
-    return {s = n}
+    return {s = n, f = d}
 end
 
 if w6:FindFirstChild("cLTRCalculators") then
@@ -765,9 +857,14 @@ w47.BackgroundTransparency = 1
 w47.Visible = false
 
 local w58
+local wXl
 local w48, w49, w50 = w40(w47, "Category", 56, w41)
 local w51, w52, w53 = w40(w47, "Area", 102, w41)
-local w54, w55, w56 = w40(w47, "Multiplier", 148, w41)
+local wW0, wW1, wW2, wW3 = w40(w47, "Weights", 148, w41)
+wW0.Visible = false
+wW1.Visible = false
+wW3.Visible = false
+local w54, w55, w56, wML = w40(w47, "Multiplier", 148, w41)
 
 local w57 = w9("TextLabel", w52)
 w57.Size = w7(1, 0, 1, 0)
@@ -807,6 +904,7 @@ w12(w60.FocusLost, function()
     else
         w24.pw = w60.Text
     end
+    if wXl then wXl() end
     w26()
 end)
 
@@ -886,6 +984,7 @@ local function w63()
         w127.Text = "Stay on this area: --"
         w127.BackgroundColor3 = w11.btn
     end
+    wXl()
 end
 
 w12(w61.MouseButton1Click, function()
@@ -997,6 +1096,23 @@ local function wC()
     w51:SetAttribute("Boost", nil)
 end
 
+local function wWl(a)
+    return a.name .. " -- " .. w15(w16(a.ms) or 0) .. " MS / " .. w15(w16(a.jf) or 0) .. " JF"
+end
+
+local function wWb(a)
+    local b = wW[a]
+    if not b then return end
+    wW0.Text = wWl(b)
+    wW1:SetAttribute("Idx", a)
+    wW1.Visible = false
+end
+
+local function wWc()
+    wW0.Text = "Select"
+    wW1:SetAttribute("Idx", nil)
+end
+
 local function w101()
     local a = w97()
     local b, c = false, false
@@ -1019,11 +1135,34 @@ local function w101()
             if w24.md[d] and not w24.st[d] then
                 local h = w16(f.cur.pw)
                 if h and h > 0 then
-                    local i = w91(d, h)
-                    if f.cur.ar ~= i then
-                        f.cur.ar = i
-                        c = true
+                    if not (wWst[d] and h < w16(w19[d][1].req)) then
+                        local i = w91(d, h)
+                        if f.cur.ar ~= i then
+                            f.cur.ar = i
+                            c = true
+                        end
                     end
+                end
+            end
+        end
+    end
+    for _, d in ipairs(w20) do
+        if wWst[d] and w24.md[d] and not w24.st[d] then
+            local f = w24.mem[d]
+            local g = w16(f.cur.pw)
+            if g and g > 0 then
+                local h, i
+                if d == "MS" then
+                    h = g
+                    i = a.JF and a.JF.v and w16(a.JF.v) or nil
+                else
+                    i = g
+                    h = a.MS and a.MS.v and w16(a.MS.v) or nil
+                end
+                local j = wW91(h, i)
+                if f.cur.wt ~= j then
+                    f.cur.wt = j
+                    c = true
                 end
             end
         end
@@ -1042,6 +1181,13 @@ local function w102(a)
         wB(a, b.ar)
     else
         wC()
+    end
+    if wWst[a] then
+        if b.wt and wW[b.wt] then
+            wWb(b.wt)
+        else
+            wWc()
+        end
     end
 end
 
@@ -1088,6 +1234,7 @@ w12(w98.MouseButton1Click, function()
     w100()
     local a = w101()
     w102(w58)
+    wXl()
     w26()
     if not a then
         w109("Couldn't read your current stats. Put them manually or use Other Stats.")
@@ -1103,8 +1250,48 @@ w12(w99.MouseButton1Click, function()
     w24.md[w58] = false
     w100()
     w102(w58)
+    wXl()
     w26()
 end)
+
+wXl = function()
+    local a = w58 ~= nil and wWst[w58] == true
+    local b = false
+    if a then
+        local c = w16(w60.Text)
+        b = not c or c < w16(w19[w58][1].req)
+    end
+    w61.Visible = not b
+    w62.Visible = not b
+    local c = a and 46 or 0
+    local d = 332 + c
+    w61.Position = w7(0, 20, 0, d)
+    w62.Position = w7(0, 250, 0, d)
+    local e = b and 0 or 46
+    w127.Position = w7(0, 20, 0, d + e)
+    w64.Position = w7(0, 20, 0, d + 46 + e)
+    w89.f.Position = w7(0, 20, 0, d + 92 + e)
+    w29.Size = w7(0, 480, 0, d + 92 + e + 160)
+    wH = d + 92 + e + 160
+end
+
+local function wRL()
+    local a = w58 ~= nil and wWst[w58] == true
+    local b = a and 46 or 0
+    wW0.Visible = a
+    wW1.Visible = false
+    wW3.Visible = a
+    w54.Position = w7(0, 150, 0, 148 + b)
+    wML.Position = w7(0, 20, 0, 148 + b)
+    w55.Position = w7(0, 150, 0, 186 + b)
+    w59.Position = w7(0, 20, 0, 194 + b)
+    w60.Position = w7(0, 150, 0, 194 + b)
+    w87.Position = w7(0, 20, 0, 240 + b)
+    w88.Position = w7(0, 150, 0, 240 + b)
+    w98.Position = w7(0, 20, 0, 286 + b)
+    w99.Position = w7(0, 250, 0, 286 + b)
+    wXl()
+end
 
 local function w67(a)
     w48.Text = a
@@ -1126,12 +1313,26 @@ local function w67(a)
             w26()
         end)
     end
+    if wWst[a] then
+        for _, b in ipairs(wW2:GetChildren()) do
+            if b:IsA("TextButton") then b:Destroy() end
+        end
+        for c, d in ipairs(wW) do
+            w39(wW2, wWl(d), function()
+                wWb(c)
+                local e = wA(a)
+                e.wt = c
+                w26()
+            end)
+        end
+    end
     w100()
     w63()
     if w24.md[a] then
         w101()
     end
     w102(a)
+    wRL()
     w89.s(w24.msg[a] or "")
     w26()
 end
@@ -1166,18 +1367,46 @@ w12(w64.MouseButton1Click, function()
             end
             local d = w16(c.pw)
             if d and d > 0 and not w24.st[w58] then
-                local e = w91(w58, d)
-                if c.ar ~= e then
-                    c.ar = e
-                    wB(w58, e)
+                if wWst[w58] and d < w16(w19[w58][1].req) then
+                    local e, f
+                    if w58 == "MS" then
+                        e = d
+                        f = a.JF and a.JF.v and w16(a.JF.v) or nil
+                    else
+                        f = d
+                        e = a.MS and a.MS.v and w16(a.MS.v) or nil
+                    end
+                    local g = wW91(e, f)
+                    if c.wt ~= g then
+                        c.wt = g
+                        if g then wWb(g) else wWc() end
+                    end
+                else
+                    local e = w91(w58, d)
+                    if c.ar ~= e then
+                        c.ar = e
+                        wB(w58, e)
+                    end
                 end
             end
             w26()
         end
     end
+    local dP = w16(w60.Text)
+    local wK
+    local wKI = wW1:GetAttribute("Idx") or 0
+    if wWst[w58] and (not dP or dP < w16(w19[w58][1].req)) then
+        if wKI > 0 and wW[wKI] then
+            local g = w58 == "MS" and wW[wKI].mm or wW[wKI].jm
+            wK = {name = wW[wKI].name, multi = g or "?"}
+        else
+            wKI = 0
+            wK = {name = "No Weight", multi = "x1"}
+        end
+    end
     local a = w51:GetAttribute("Mult")
     local b = w51:GetAttribute("Idx")
-    if not a or not b then
+    if not wK and (not a or not b) then
         w109("Select an area.")
         return
     end
@@ -1185,6 +1414,42 @@ w12(w64.MouseButton1Click, function()
     if not c then
         w109("Select a multiplier.")
         return
+    end
+    local function wWk(e, d, wTg)
+        local wS = e
+        local g, h, i = 0, {}, false
+        local wSl = wSmg(w58)
+        local function j(m, n)
+            local o = wSm91(w58, m) or 1
+            local p = wSl[o]
+            local q = w16(p.mu)
+            local r = p.bo
+            if not q then
+                i = true
+                h[#h + 1] = w15(m) .. " > " .. w15(n) .. " (" .. (p.dn or p.nm) .. "): ?"
+                return
+            end
+            local s = q * c
+            if w24.gn[w58] and r then s = s * 2 end
+            local t = (n - m) / s
+            if w24.sp[w58] and r then t = t / 2 end
+            g = g + t
+            h[#h + 1] = w15(m) .. " > " .. w15(n) .. " (" .. (p.dn or p.nm) .. "): " .. w17(t)
+        end
+        for k = 1, #wSl do
+            local l = wSl[k]
+            local m = l.th
+            if m and m > e and m <= d then
+                j(e, m)
+                e = m
+            end
+        end
+        if d > e then
+            j(e, d)
+        end
+        w109(wTg .. w15(wS) .. " to " .. w15(d) .. " -- Total: " .. (i and "?" or w17(g)) ..
+            "\n" .. table.concat(h, "\n") ..
+            (i and "\n-- ? = unknown multiplier" or ""))
     end
     if w88.Text ~= "" then
         local d = w16(w88.Text)
@@ -1194,7 +1459,11 @@ w12(w64.MouseButton1Click, function()
         end
         local e = w16(w60.Text)
         if not e or e <= 0 then
-            e = w16(w19[w58][b].req) or 0
+            if b then
+                e = w16(w19[w58][b].req) or 0
+            else
+                e = 0
+            end
         end
         if d <= e then
             w109("Power objective: you already have more than that! Put another value.")
@@ -1202,8 +1471,15 @@ w12(w64.MouseButton1Click, function()
         end
         local f = e
         if w24.st[w58] then
-            local g = w16(a)
-            local h = w51:GetAttribute("Boost")
+            local g, k
+            if wK then
+                g = w16(wK.multi)
+                k = wWn(wK.name)
+            else
+                g = w16(a)
+                k = w19[w58][b].name
+            end
+            local h = wK and false or w51:GetAttribute("Boost")
             local i = g and g * c or nil
             if i and w24.gn[w58] and h then
                 i = i * 2
@@ -1213,11 +1489,11 @@ w12(w64.MouseButton1Click, function()
                 j = j / 2
             end
             if not j then
-                w109("Power objective -- staying in " .. w19[w58][b].name .. ": ?" ..
-                    "\n-- ? = unknown area multiplier")
+                w109("Power objective -- staying in " .. k .. ": ?" ..
+                    "\n-- ? = unknown " .. (wK and "weight" or "area") .. " multiplier")
                 return
             end
-            w109("Power objective -- " .. w15(f) .. " to " .. w15(d) .. " -- Staying in " .. w19[w58][b].name ..
+            w109("Power objective -- " .. w15(f) .. " to " .. w15(d) .. " -- Staying in " .. k ..
                 "\nGain per second: " .. w15(i) ..
                 "\nGain per minute: " .. w15(i * 60) ..
                 "\nGain per hour: " .. w15(i * 3600) ..
@@ -1228,50 +1504,54 @@ w12(w64.MouseButton1Click, function()
                 "\nTotal: " .. w17(j))
             return
         end
-        local g, h, i = 0, {}, false
-        local function j(m, n)
-            local o = w91(w58, m)
-            local p = w19[w58][o]
-            local q = w16(p.multi)
-            local r = not w22[w58] or o >= w22[w58]
-            if not q then
-                i = true
-                h[#h + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): ?"
-                return
-            end
-            local s = q * c
-            if w24.gn[w58] and r then s = s * 2 end
-            local t = (n - m) / s
-            if w24.sp[w58] and r then t = t / 2 end
-            g = g + t
-            h[#h + 1] = w15(m) .. " > " .. w15(n) .. " (" .. p.name .. "): " .. w17(t)
-        end
-        for k = 1, #w19[w58] do
-            local l = w19[w58][k]
-            local m = w16(w58 == "BT" and l.min or l.req)
-            if m and m > e and m <= d then
-                j(e, m)
-                e = m
-            end
-        end
-        if d > e then
-            j(e, d)
-        end
-        w109("Power objective -- " .. w15(f) .. " to " .. w15(d) .. " -- Total: " .. (i and "?" or w17(g)) ..
-            "\n" .. table.concat(h, "\n") ..
-            (i and "\n-- ? = unknown area multiplier" or ""))
+        wWk(e, d, "Power objective -- ")
         return
     end
-    local d = w16(a)
+    local wT, wTN
+    if wK then
+        if b and w19[w58][b] then
+            wT = w16(w19[w58][b].req)
+            wTN = w19[w58][b].name
+        end
+    elseif wWst[w58] and wKI > 0 and wW[wKI] then
+        local g = w16(w58 == "MS" and wW[wKI].ms or wW[wKI].jf)
+        if g and dP and g > dP then
+            wT = g
+            wTN = wWn(wW[wKI].name)
+        end
+    end
+    if wT and not w24.st[w58] then
+        wWk(dP or 0, wT, "Path to " .. wTN .. " -- ")
+        return
+    end
+    local d, e, f
+    if wK then
+        d = w16(wK.multi)
+        e = false
+        if wW[wKI + 1] then
+            f = w16(w58 == "MS" and wW[wKI + 1].ms or wW[wKI + 1].jf)
+        else
+            f = w16(w19[w58][1].req)
+        end
+    else
+        d = w16(a)
+        e = w51:GetAttribute("Boost")
+        if w19[w58][b + 1] then
+            local g = w19[w58][b + 1]
+            f = w16(w58 == "BT" and g.min or g.req)
+        end
+    end
     if not d then
-        w109("Unknown area multiplier.")
+        if wK then
+            local g = "Unknown weight multiplier."
+            if f then
+                g = g .. "\nNext: " .. (wW[wKI + 1] and wWn(wW[wKI + 1].name) or w19[w58][1].name) .. " at " .. w15(f)
+            end
+            w109(g)
+        else
+            w109("Unknown area multiplier.")
+        end
         return
-    end
-    local e = w51:GetAttribute("Boost")
-    local f = nil
-    if w19[w58][b + 1] then
-        local g = w19[w58][b + 1]
-        f = w16(w58 == "BT" and g.min or g.req)
     end
     local h = d * c
     if w24.gn[w58] and e then h = h * 2 end
@@ -1280,9 +1560,9 @@ w12(w64.MouseButton1Click, function()
     if w24.sp[w58] and e then j = j / 2 end
     local k
     if w24.st[w58] then
-        k = "Staying in this area -- put a Power Objective to calculate the time."
+        k = wK and "Staying with this weight -- put a Power Objective to calculate the time." or "Staying in this area -- put a Power Objective to calculate the time."
     elseif f then
-        k = "Estimated time to next area: " .. w17(j)
+        k = "Estimated time to next " .. (wK and (wW[wKI + 1] and "weight" or "area") or "area") .. ": " .. w17(j)
     else
         k = "Last area selected."
     end
@@ -1864,6 +2144,7 @@ local function w103()
         local c = wA(w58)
         if not w60:IsFocused() then
             w60.Text = (c.pw ~= "" and c.pw) or "0"
+            wXl()
         end
         if c.mu and w54.Text ~= c.mu then
             w54.Text = c.mu
@@ -1873,6 +2154,18 @@ local function w103()
         end
         if c.ar and w19[w58][c.ar] and w51:GetAttribute("Idx") ~= c.ar then
             wB(w58, c.ar)
+        end
+        if wWst[w58] then
+            if not c.ar and w51:GetAttribute("Idx") then
+                wC()
+            end
+            if c.wt and wW[c.wt] then
+                if wW1:GetAttribute("Idx") ~= c.wt then
+                    wWb(c.wt)
+                end
+            elseif wW1:GetAttribute("Idx") then
+                wWc()
+            end
         end
     end
     return b
@@ -2025,7 +2318,7 @@ local function w82(a)
     local b = w81()
     local c = w79()
     local d = 480 * b
-    local e = 630 * b
+    local e = wH * b
     local f = 50 * b
     local g, h = w24.pos and not a, w24.icon and not a
     w29.Position = g and w7(
