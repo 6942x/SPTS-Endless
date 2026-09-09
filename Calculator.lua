@@ -1259,7 +1259,7 @@ wXl = function()
     local b = false
     if a then
         local c = w16(w60.Text)
-        b = not c or c < w16(w19[w58][1].req)
+        b = c ~= nil and c > 0 and c < w16(w19[w58][1].req)
     end
     w61.Visible = not b
     w62.Visible = not b
