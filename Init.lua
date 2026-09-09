@@ -358,19 +358,46 @@ local w39 = {
 }
 
 local w40 = {
-        { "K",  1e3  },
-        { "M",  1e6  },
-        { "B",  1e9  },
-        { "T",  1e12 },
-        { "Qa", 1e15 },
-        { "Qi", 1e18 },
-        { "Sx", 1e21 },
-        { "Sp", 1e24 },
-        { "Oc", 1e27 },
-        { "No", 1e30 },
-        { "Dc", 1e33 },
-        { "Ud", 1e36 },
-        { "Dd", 1e39 }
+        { "K",    1e3   },
+        { "M",    1e6   },
+        { "B",    1e9   },
+        { "T",    1e12  },
+        { "Qa",   1e15  },
+        { "Qi",   1e18  },
+        { "Sx",   1e21  },
+        { "Sp",   1e24  },
+        { "Oc",   1e27  },
+        { "No",   1e30  },
+        { "Dc",   1e33  },
+        { "Ud",   1e36  },
+        { "Dd",   1e39  },
+        { "Td",   1e42  },
+        { "Qad",  1e45  },
+        { "Qid",  1e48  },
+        { "Sxd",  1e51  },
+        { "Spd",  1e54  },
+        { "Ocd",  1e57  },
+        { "Nod",  1e60  },
+        { "Vg",   1e63  },
+        { "Uvg",  1e66  },
+        { "Dvg",  1e69  },
+        { "Tvg",  1e72  },
+        { "Qavg", 1e75  },
+        { "Qivg", 1e78  },
+        { "Sxvg", 1e81  },
+        { "Spvg", 1e84  },
+        { "Ocvg", 1e87  },
+        { "Novg", 1e90  },
+        { "Tg",   1e93  },
+        { "Utg",  1e96  },
+        { "Dtg",  1e99  },
+        { "Ttg",  1e102 },
+        { "Qatg", 1e105 },
+        { "Qitg", 1e108 },
+        { "Sxtg", 1e111 },
+        { "Sptg", 1e114 },
+        { "Octg", 1e117 },
+        { "Notg", 1e120 }
 }
 
 local function w41(a)
@@ -417,6 +444,47 @@ local w42 = {
         JumpForce     = wr(w26, "JFTxt"),
         PsychicPower  = wr(w26, "PPTxt")
 }
+
+local wgr = {}
+local wgs = {
+        FS_Gained_Handler = "FistStrength",
+        BT_Gained_Handler = "BodyToughness",
+        MS_Gained_Handler = "MovementSpeed",
+        JF_Gained_Handler = "JumpForce",
+        PP_Gained_Handler = "PsychicPower"
+}
+for _, a in ipairs({ "FistStrength", "BodyToughness", "MovementSpeed", "JumpForce", "PsychicPower" }) do
+        wgr[a] = { b = {}, r = 0 }
+end
+local function wgt(a, b)
+        local c = wgr[a]
+        if not c then return end
+        local d = tick()
+        while #c.b > 0 and d - c.b[1][1] > 10 do
+                table.remove(c.b, 1)
+        end
+        c.b[#c.b + 1] = { d, b }
+        local e = 0
+        for _, g in ipairs(c.b) do
+                e = e + g[2]
+        end
+        local f = d - c.b[1][1]
+        c.r = e / (f < 1 and 1 or f)
+end
+local function wgv(a)
+        local b = wgr[a]
+        if b and b.r > 0 then
+                return " (+" .. wab(b.r) .. "/s)"
+        end
+        return ""
+end
+w33(w25.OnClientEvent, function(a)
+        if type(a) ~= "table" or type(a[1]) ~= "string" then return end
+        local b = wgs[a[1]]
+        if b and type(a[3]) == "number" and a[3] > 0 then
+                wgt(b, a[3])
+        end
+end)
 
 local function w43(a)
         local b = w42[a]
@@ -1157,7 +1225,7 @@ for _, a in ipairs(w87) do
         w33(w88[a.n].b.MouseButton1Click, function() w93(a.n) end)
 end
 
-local w94 = { area = nil, anchor = nil, thr = 0 }
+local w94 = { area = nil, anchor = nil, thr = 0, rtr = 0, base = nil }
 
 do
         local a = w89["Auto Farm"]
@@ -1227,7 +1295,8 @@ do
                                 local v, x = w47(u)
                                 if v then
                                         w94.anchor = x
-                                        w94.status.Text = e[k] .. " \xe2\x80\x94 Area: " .. t .. " (req " .. w38[k][t].req .. " --> " .. wab(w38[k][t].req) .. ")"
+                                        w94.status.Text = e[k] .. " \xe2\x80\x94 Area: " .. t .. " (req " .. w38[k][t].req .. " --> " .. wab(w38[k][t].req) .. ")" .. wgv(k)
+                                        w94.base = w94.status.Text
                                         w37(e[k] .. " \xe2\x80\x94 " .. t, w5(80, 220, 120))
                                 else
                                         w94.status.Text = "Teleport failed!"
@@ -1334,7 +1403,8 @@ do
                         if aq then
                                 w94.anchor = ar
                                 local as = aj == "n" and "Next" or "Current"
-                                w94.status.Text = "Body Toughness (" .. as .. ") \xe2\x80\x94 Area: " .. ao .. " (req " .. w38.BodyToughness[ao].req .. " --> " .. wab(w38.BodyToughness[ao].req) .. ")"
+                                w94.status.Text = "Body Toughness (" .. as .. ") \xe2\x80\x94 Area: " .. ao .. " (req " .. w38.BodyToughness[ao].req .. " --> " .. wab(w38.BodyToughness[ao].req) .. ")" .. wgv("BodyToughness")
+                                w94.base = w94.status.Text
                                 w37("BT " .. as .. " \xe2\x80\x94 " .. ao, w5(80, 220, 120))
                         else
                                 w94.status.Text = "Teleport failed!"
@@ -1444,7 +1514,7 @@ local function wrm()
                         local e = d and d:IsA("ScreenGui") and d.Enabled
                         local f = w16.Character
                         local g = f and f:FindFirstChildOfClass("Humanoid")
-                        local h = not f or not g or g.Health <= 0
+                        local h = not f or not g or g.Health <= 0 or g:GetState() == Enum.HumanoidStateType.Dead
                         local i = game:GetService("Lighting"):FindFirstChild("Blur")
                         if c == "Risky" then
                                 if e then d.Enabled = false end
@@ -1452,7 +1522,7 @@ local function wrm()
                                         i.Enabled = false
                                         i.Size = 0
                                 end
-                                if (f and g and g.Health <= 0) or (e and not f) then
+                                if (f and g and (g.Health <= 0 or g:GetState() == Enum.HumanoidStateType.Dead)) or (e and not f) then
                                         if not b then
                                                 b = true
                                                 w37("Auto Respawn \xe2\x80\x94 Instant respawn", w5(255, 120, 120))
@@ -1918,10 +1988,11 @@ if a0 then
                                                         w94.anchor = g
                                                         if a == "BodyToughness" and w22.mode then
                                                                 local h = w22.mode == "n" and "Next" or "Current"
-                                                                w94.status.Text = w94.names[a] .. " (" .. h .. ") \xe2\x80\x94 Area: " .. d .. " (req " .. w38[a][d].req .. " --> " .. wab(w38[a][d].req) .. ")"
+                                                                w94.status.Text = w94.names[a] .. " (" .. h .. ") \xe2\x80\x94 Area: " .. d .. " (req " .. w38[a][d].req .. " --> " .. wab(w38[a][d].req) .. ")" .. wgv(a)
                                                         else
-                                                                w94.status.Text = w94.names[a] .. " \xe2\x80\x94 Area: " .. d .. " (req " .. w38[a][d].req .. " --> " .. wab(w38[a][d].req) .. ")"
+                                                                w94.status.Text = w94.names[a] .. " \xe2\x80\x94 Area: " .. d .. " (req " .. w38[a][d].req .. " --> " .. wab(w38[a][d].req) .. ")" .. wgv(a)
                                                         end
+                                                        w94.base = w94.status.Text
                                                 end
                                         end
                                 end
@@ -1954,6 +2025,14 @@ w33(w1.Heartbeat, function()
                 local a = w16.Character.HumanoidRootPart
                 if (a.Position - w22.save.Position).Magnitude > 20 then a.CFrame = w22.save end
         end
+        if tick() - w94.rtr >= 0.5 then
+                w94.rtr = tick()
+                local a = wgr[w22.stat]
+                if a and #a.b > 0 and tick() - a.b[#a.b][1] > 10.5 then a.r = 0 end
+                if w94.base and w22.stat and w94.status.Text:find(" \xe2\x80\x94 Area: ", 1, true) then
+                        w94.status.Text = w94.base .. wgv(w22.stat)
+                end
+        end
         if not w22.stat then return end
         local b = w16.Character
         if not b then return end
@@ -1971,10 +2050,11 @@ w33(w1.Heartbeat, function()
                                 w94.anchor = h
                                 if w22.stat == "BodyToughness" and w22.mode then
                                         local i = w22.mode == "n" and "Next" or "Current"
-                                        w94.status.Text = w94.names[w22.stat] .. " (" .. i .. ") \xe2\x80\x94 Area: " .. e .. " (req " .. w38[w22.stat][e].req .. " --> " .. wab(w38[w22.stat][e].req) .. ")"
+                                        w94.status.Text = w94.names[w22.stat] .. " (" .. i .. ") \xe2\x80\x94 Area: " .. e .. " (req " .. w38[w22.stat][e].req .. " --> " .. wab(w38[w22.stat][e].req) .. ")" .. wgv(w22.stat)
                                 else
-                                        w94.status.Text = w94.names[w22.stat] .. " \xe2\x80\x94 Area: " .. e .. " (req " .. w38[w22.stat][e].req .. " --> " .. wab(w38[w22.stat][e].req) .. ")"
+                                        w94.status.Text = w94.names[w22.stat] .. " \xe2\x80\x94 Area: " .. e .. " (req " .. w38[w22.stat][e].req .. " --> " .. wab(w38[w22.stat][e].req) .. ")" .. wgv(w22.stat)
                                 end
+                                w94.base = w94.status.Text
                         end
                 end
         end
