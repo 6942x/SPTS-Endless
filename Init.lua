@@ -1981,10 +1981,10 @@ if a0 then
                                 if a == "BodyToughness" and w22.mode == "c" then d = w45(a, c) else d = w44(a, c) end
                                 if d then
                                         local e = w46(a, d)
-                                        w94.area = e
                                         if e then
                                                 local f, g = w47(e)
                                                 if f then
+                                                        w94.area = e
                                                         w94.anchor = g
                                                         if a == "BodyToughness" and w22.mode then
                                                                 local h = w22.mode == "n" and "Next" or "Current"
@@ -2044,9 +2044,9 @@ w33(w1.Heartbeat, function()
         if e and (not w94.area or w94.area.Name ~= e) then
                 local f = w46(w22.stat, e)
                 if f then
-                        w94.area = f
                         local g, h = w47(f)
                         if g then
+                                w94.area = f
                                 w94.anchor = h
                                 if w22.stat == "BodyToughness" and w22.mode then
                                         local i = w22.mode == "n" and "Next" or "Current"
