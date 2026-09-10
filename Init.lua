@@ -1507,7 +1507,6 @@ local function wrm()
                 if w18 then w18.Enabled = true end
         end
         w19.th.R = task.spawn(function()
-                local b = false
                 while w22.rsp and w62 and w62.Parent do
                         local c = w22.rtype
                         local d = w17:FindFirstChild("IntroGui")
@@ -1523,10 +1522,6 @@ local function wrm()
                                         i.Size = 0
                                 end
                                 if (f and g and (g.Health <= 0 or g:GetState() == Enum.HumanoidStateType.Dead)) or (e and not f) then
-                                        if not b then
-                                                b = true
-                                                w37("Auto Respawn \xe2\x80\x94 Instant respawn", w5(255, 120, 120))
-                                        end
                                         pcall(function()
                                                 local k = game:GetService("SoundService"):FindFirstChild("LocalSoundStorage")
                                                 local l = k and k:FindFirstChild("DeathSound")
@@ -1544,7 +1539,6 @@ local function wrm()
                                                 end
                                         end
                                 else
-                                        if b and f and g then b = false end
                                         if not h and w18 and not w18.Enabled then
                                                 local k = workspace.CurrentCamera
                                                 if k then
@@ -1552,25 +1546,14 @@ local function wrm()
                                                         k.CameraSubject = g
                                                 end
                                                 a()
-                                                w37("Auto Respawn \xe2\x80\x94 Restored", w5(80, 220, 120))
                                         end
                                         task.wait(0.05)
                                 end
                         else
                                 if e and h then
-                                        if not b then
-                                                b = true
-                                                w37("Auto Respawn \xe2\x80\x94 Respawning", w5(80, 220, 120))
-                                        end
                                         wfr({ "Respawn" })
                                         task.wait(0.5)
                                 else
-                                        if not e then
-                                                b = false
-                                        elseif b then
-                                                b = false
-                                                w37("Auto Respawn \xe2\x80\x94 Restored", w5(80, 220, 120))
-                                        end
                                         if not h and (e or (i and i.Enabled) or (w18 and not w18.Enabled)) then
                                                 a()
                                         end
