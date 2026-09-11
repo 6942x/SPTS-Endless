@@ -42,6 +42,7 @@ local w11 = {
     pu = w8(168, 85, 247),
     grn = w8(0, 200, 150),
     vio = w8(124, 77, 255),
+    vioH = w8(154, 107, 255),
     org = w8(245, 158, 11),
     orgH = w8(251, 191, 36),
     puH = w8(187, 134, 252),
@@ -63,10 +64,16 @@ local function w13(a, b, c)
 end
 
 local w14 = {
-    {"k", 1e3}, {"M", 1e6}, {"B", 1e9}, {"T", 1e12},
+    {"K", 1e3}, {"M", 1e6}, {"B", 1e9}, {"T", 1e12},
     {"Qa", 1e15}, {"Qi", 1e18}, {"Sx", 1e21}, {"Sp", 1e24},
     {"Oc", 1e27}, {"No", 1e30}, {"Dc", 1e33}, {"Ud", 1e36},
-    {"Dd", 1e39}, {"Td", 1e42}
+    {"Dd", 1e39}, {"Td", 1e42}, {"Qad", 1e45}, {"Qid", 1e48},
+    {"Sxd", 1e51}, {"Spd", 1e54}, {"Ocd", 1e57}, {"Nod", 1e60},
+    {"Vg", 1e63}, {"Uvg", 1e66}, {"Dvg", 1e69}, {"Tvg", 1e72},
+    {"Qavg", 1e75}, {"Qivg", 1e78}, {"Sxvg", 1e81}, {"Spvg", 1e84},
+    {"Ocvg", 1e87}, {"Novg", 1e90}, {"Tg", 1e93}, {"Utg", 1e96},
+    {"Dtg", 1e99}, {"Ttg", 1e102}, {"Qatg", 1e105}, {"Qitg", 1e108},
+    {"Sxtg", 1e111}, {"Sptg", 1e114}, {"Octg", 1e117}, {"Notg", 1e120}
 }
 w14.m = {million = 1e6, billion = 1e9, trillion = 1e12}
 for _, a in ipairs(w14) do
@@ -407,7 +414,7 @@ local function w25()
         w24.icon = {X = d.icon.X, Y = d.icon.Y}
     end
     w24.pw = tostring(d.pw or d.power or "")
-    if d.view == "Farming" or d.view == "Tokens" or d.view == "Multipliers" then
+    if d.view == "Farming" or d.view == "Tokens" or d.view == "Multipliers" or d.view == "Wiki" then
         w24.view = d.view
     end
     if w19[d.cat] then
@@ -849,6 +856,18 @@ w111.TextSize = 20
 w111.AutoButtonColor = false
 w9("UICorner", w111).CornerRadius = UDim.new(0, 8)
 w38(w111, w11.pu, w11.puH)
+
+local wUk = w9("TextButton", w43)
+wUk.Text = "Wiki"
+wUk.Size = w7(0, 140, 0, 100)
+wUk.Position = w7(0, 170, 0, 320)
+wUk.BackgroundColor3 = w11.vio
+wUk.TextColor3 = w11.wht
+wUk.Font = w10
+wUk.TextSize = 20
+wUk.AutoButtonColor = false
+w9("UICorner", wUk).CornerRadius = UDim.new(0, 8)
+w38(wUk, w11.vio, w11.vioH)
 
 local w47 = w9("Frame", w29)
 w47.Name = "FarmingView"
@@ -2138,6 +2157,210 @@ end)
 
 w38(w125, w11.org, w11.orgH)
 
+local wUv = w9("Frame", w29)
+wUv.Name = "WikiView"
+wUv.Size = w7(1, 0, 1, 0)
+wUv.BackgroundTransparency = 1
+wUv.Visible = false
+
+do
+    local wU = {
+        FS = {"Fist Strength", {
+            {"Whan Skill 2", "Soul Devourer", 4, {2e15, 2e16, 2e17, 2e18, 2e19, 2e20}},
+            {"Joe Skill 3", "Crystal Burst", 5, {9e17, 9e18, 9e19, 9e20, 9e21, 9e22}},
+            {"Nan Skill 1", "Annihilation Beam", 5, {6e19, 6e20, 6e21, 6e22, 6e23, 6e24}},
+            {"Nu Skill 5", "Inferno Spikes", 6, {8e22, 8e23, 8e24, 8e25, 8e26, 8e27}},
+            {"Gob Skill 2", "Spiral Nova", 6, {5e25, 5e26, 5e27, 5e28, 5e29, 5e30}},
+            {"Nu Skill 1", "Fury Fist", 7, {4e28, 4e29, 4e30, 4e31, 4e32, 4e33}},
+            {"Oum Skill 4", "Rage Smash", 7, {7e31, 7e32, 7e33, 7e34, 7e35, 7e36}},
+            {"Gob Skill 8", "Chaos Barrage", 8, {3e34, 3e35, 3e36, 3e37, 3e38, 3e39}},
+            {"Moo Skill 5", "Radiant Burst", 8, {1e37, 1e38, 1e39, 1e40, 1e41, 1e42}},
+            {"Gob Skill 6", "Blazequake", 9, {2e40, 2e42, 2e44, 2e46, 2e48, 2e50}}
+        }},
+        BT = {"Body Toughness", {
+            {"Ton Skill 2", "Asteroid Strike", 5, {1e18, 1e19, 1e20, 1e21, 1e22, 1e23}},
+            {"Nit Skill 3", "Nether Blast", 6, {8e24, 8e25, 8e26, 8e27, 8e28, 8e29}},
+            {"Moo Skill 2", "Meteor Smash", 7, {2e30, 2e31, 2e32, 2e33, 2e34, 2e35}},
+            {"Oum Skill 3", "Soul Explosion", 8, {4e35, 4e36, 4e37, 4e38, 4e39, 4e40}},
+            {"Gob Skill 1", "Aura Eruption", 9, {6e40, 6e42, 6e44, 6e46, 6e48, 6e50}}
+        }},
+        MS = {"Movement Speed", {
+            {"Ton Skill 1", "Mystic Tornado", 5, {9e14, 9e15, 9e16, 9e17, 9e18, 9e19}},
+            {"Nit Skill 2", "Whirling Havoc", 6, {8e20, 8e21, 8e22, 8e23, 8e24, 8e25}},
+            {"Oum Skill 1", "Arcane Blast", 7, {7e26, 7e27, 7e28, 7e29, 7e30, 7e31}},
+            {"Nu Skill 3", "Cyclone Surge", 8, {6e33, 6e34, 6e35, 6e36, 6e37, 6e38}},
+            {"Gob Skill 5", "Skyfall Strike", 9, {5e40, 5e42, 5e44, 5e46, 5e48, 5e50}}
+        }},
+        JF = {"Jump Force", {
+            {"Nan Skill 2", "Death Wrath", 4, {2e16, 2e17, 2e18, 2e19, 2e20, 2e21}},
+            {"Moo Skill 1", "Raging Tempest", 7, {3e21, 3e22, 3e23, 3e24, 3e25, 3e26}},
+            {"Moo Skill 3", "Judgement Light", 7, {4e27, 4e28, 4e29, 4e30, 4e31, 4e32}},
+            {"Nu Skill 2", "Glacial Bloom", 8, {5e33, 5e34, 5e35, 5e36, 5e37, 5e38}},
+            {"Gob Skill 3", "Thunderburst", 9, {7e40, 7e42, 7e44, 7e46, 7e48, 7e50}}
+        }},
+        PP = {"Psychic Power", {
+            {"Pear Skill 2", "Demonic Cage", 5, {1e12, 1e13, 1e14, 1e15, 1e16, 1e17}},
+            {"Whan Skill 1", "Spatial Distortion", 6, {1e15, 1e16, 1e17, 1e18, 1e19, 1e20}},
+            {"Gob Skill 9", "Phantom Summon", 6, {1e18, 1e19, 1e20, 1e21, 1e22, 1e23}},
+            {"Nu Skill 4", "Supernova Bomb", 7, {1e21, 1e22, 1e23, 1e24, 1e25, 1e26}},
+            {"Moo Skill 4", "Magma Wave", 7, {1e24, 1e25, 1e26, 1e27, 1e28, 1e29}},
+            {"Gob Skill 7", "Void Piercer", 8, {1e27, 1e28, 1e29, 1e30, 1e31, 1e32}},
+            {"Gob Skill 4", "Hell's Quicksand", 8, {1e30, 1e31, 1e32, 1e33, 1e34, 1e35}},
+            {"Joe Skill 1", "Enchanted Doom", 9, {1e33, 1e34, 1e35, 1e36, 1e37, 1e38}},
+            {"Oum Skill 2", "Endless Storm", 9, {1e36, 1e37, 1e38, 1e39, 1e40, 1e41}},
+            {"Joe Skill 2", "Blade Dance", 9, {1e39, 1e41, 1e43, 1e45, 1e47, 1e49}}
+        }}
+    }
+    local wUq = {FS = w11.org, BT = w11.cy, MS = w11.grn, JF = w11.vio, PP = w11.pu}
+    local wUn = w9("TextButton", wUv)
+    wUn.Text = "Skills"
+    wUn.Size = w7(0, 140, 0, 32)
+    wUn.Position = w7(0, 20, 0, 56)
+    wUn.BackgroundColor3 = w11.item
+    wUn.TextColor3 = w11.wht
+    wUn.Font = w10
+    wUn.TextSize = 18
+    wUn.AutoButtonColor = false
+    w9("UICorner", wUn).CornerRadius = UDim.new(0, 4)
+    w38(wUn, w11.item, w11.prs)
+    local wUm = w9("TextLabel", wUv)
+    wUm.Size = w7(1, -180, 0, 32)
+    wUm.Position = w7(0, 170, 0, 56)
+    wUm.BackgroundTransparency = 1
+    wUm.TextColor3 = w11.dim
+    wUm.Font = w10
+    wUm.TextSize = 15
+    wUm.TextXAlignment = Enum.TextXAlignment.Right
+    local wUl = w9("ScrollingFrame", wUv)
+    wUl.Size = w7(1, -40, 1, -132)
+    wUl.Position = w7(0, 20, 0, 100)
+    wUl.BackgroundTransparency = 1
+    wUl.BorderSizePixel = 0
+    wUl.ScrollBarThickness = 6
+    wUl.ScrollBarImageColor3 = w11.sbr
+    wUl.ScrollingDirection = Enum.ScrollingDirection.Y
+    wUl.CanvasSize = w7(0, 0, 0, 0)
+    wUl.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    local wUo = w9("UIPadding", wUl)
+    wUo.PaddingTop = UDim.new(0, 4)
+    wUo.PaddingBottom = UDim.new(0, 8)
+    wUo.PaddingLeft = UDim.new(0, 4)
+    wUo.PaddingRight = UDim.new(0, 8)
+    local wUp = w9("UIListLayout", wUl)
+    wUp.SortOrder = Enum.SortOrder.LayoutOrder
+    wUp.Padding = UDim.new(0, 4)
+    local wUt = {
+        {"Energy Sphere Punch", 5, "FS 1,000 to unlock", {"LV1: T2 -- FS 1K (1e3)", "LV2: T3 -- FS 10K (1e4)", "LV3: T3 -- FS 1M (1e6)", "LV4: T4 -- FS 100M (1e8)", "LV5: T4 -- FS 100B (1e11)", "LV6: T5 -- FS 1Qa (1e15)", "LV7: T6 -- FS 100Qi (1e20)", "LV8: T7 -- FS 10Sp (1e25)", "LV9: T8 -- FS 1No (1e30)", "LV10 MAX: T9 -- FS 10Dd (1e40)"}},
+        {"Damage Reflection", 6, "{Passive}"},
+        {"Water Run", 7, "{Passive}", {"Toggle needs MS 1,000 + PP 1,000"}},
+        {"Teleport", 9},
+        {"Fly", 10, "{Double Jump}"},
+        {"Bullet Punch", 11, "FS 100K to unlock", {"LV1: T3 -- FS 100K (1e5)", "LV2: T4 -- FS 10M (1e7)", "LV3: T5 -- FS 1T (1e12)", "LV4: T6 -- FS 10Sx (1e22)", "LV5: T7 -- FS 100No (1e32)", "LV6 MAX: T8 -- FS 1Td (1e42)"}},
+        {"Soul Attack", 12, nil, {"LV1: T3 -- from unlock", "LV2: T3 -- PP 100K (1e5)", "LV3: T4 -- PP 100M (1e8)", "LV4: T4 -- PP 1T (1e12)", "LV5: T5 -- PP 10Qa (1e16)", "LV6: T5 -- PP 100Qi (1e20)", "LV7: T6 -- PP 10Sp (1e25)", "LV8: T7 -- PP 1No (1e30)", "LV9: T8 -- PP 100Dc (1e35)", "LV10 MAX: T9 -- PP 100Dd (1e41)"}},
+        {"Conceal/Reveal Aura", 13},
+        {"Killing Intent Aura", 14}
+    }
+    local wUr = 0
+    local wUs = 0
+    local function wUh(a, b, c)
+        wUr = wUr + 1
+        local d = w9("TextLabel", wUl)
+        d.Size = w7(1, -4, 0, c + 2)
+        d.BackgroundTransparency = 1
+        d.Text = a
+        d.TextColor3 = b
+        d.Font = w10
+        d.TextSize = c
+        d.TextXAlignment = Enum.TextXAlignment.Left
+        d.LayoutOrder = wUr
+    end
+    local function wUi(a)
+        wUr = wUr + 1
+        local b = w9("Frame", wUl)
+        b.Size = w7(1, -4, 0, 0)
+        b.AutomaticSize = Enum.AutomaticSize.Y
+        b.BackgroundColor3 = w8(54, 54, 54)
+        b.BorderSizePixel = 0
+        b.LayoutOrder = wUr
+        w9("UICorner", b).CornerRadius = UDim.new(0, 6)
+        local c = w9("TextLabel", b)
+        c.Size = w7(1, -24, 0, 16)
+        c.Position = w7(0, 12, 0, 2)
+        c.BackgroundTransparency = 1
+        c.Text = a
+        c.TextColor3 = w11.wht
+        c.Font = w10
+        c.TextSize = 16
+        c.TextXAlignment = Enum.TextXAlignment.Left
+        local d = w9("UIPadding", b)
+        d.PaddingBottom = UDim.new(0, 4)
+        return b
+    end
+    local function wUj(a)
+        local b = w15(a)
+        local c, d = string.match(string.format("%.14e", a), "([%d%.]+)e%+?(-?%d+)")
+        c = c:gsub("%.?0+$", "")
+        return b .. " (" .. c .. "e" .. d .. ")"
+    end
+    wUh("Quest Skills", w11.org, 20)
+    for _, a in ipairs(wUt) do
+        local b = wUi(a[1] .. "  --  Main Quest " .. a[2] .. "+")
+        local c = {}
+        if a[3] then
+            c[#c + 1] = a[3]
+        end
+        if a[4] then
+            for _, d in ipairs(a[4]) do
+                c[#c + 1] = d
+            end
+        end
+        for i, d in ipairs(c) do
+            local e = w9("TextLabel", b)
+            e.Size = w7(1, -24, 0, 14)
+            e.Position = w7(0, 12, 0, 18 + (i - 1) * 18)
+            e.BackgroundTransparency = 1
+            e.Text = d
+            e.TextColor3 = w11.dim
+            e.Font = w10
+            e.TextSize = 14
+            e.TextXAlignment = Enum.TextXAlignment.Left
+        end
+    end
+    wUh("All Skills", w11.cy, 20)
+    for _, a in ipairs({"FS", "BT", "MS", "JF", "PP"}) do
+        local b = wU[a]
+        wUr = wUr + 1
+        local c = w9("TextLabel", wUl)
+        c.Size = w7(1, -4, 0, 24)
+        c.BackgroundTransparency = 1
+        c.Text = b[1] .. " (" .. a .. ")"
+        c.TextColor3 = wUq[a]
+        c.Font = w10
+        c.TextSize = 20
+        c.TextXAlignment = Enum.TextXAlignment.Left
+        c.LayoutOrder = wUr
+        for _, d in ipairs(b[2]) do
+            wUs = wUs + 1
+            local e = wUi(d[2] .. "  --  " .. d[1] .. "  --  Tier " .. d[3])
+            for i = 1, 6 do
+                local f = w9("TextLabel", e)
+                f.Size = w7(1, -24, 0, 14)
+                f.Position = w7(0, 12, 0, 18 + (i - 1) * 18)
+                f.BackgroundTransparency = 1
+                f.Text = "LVL" .. i .. ": " .. wUj(d[4][i])
+                f.TextColor3 = w11.dim
+                f.Font = w10
+                f.TextSize = 14
+                f.TextXAlignment = Enum.TextXAlignment.Left
+            end
+        end
+    end
+    wUm.Text = wUs .. " skills  +  " .. #wUt .. " quest skills"
+    w12(wUn.MouseButton1Click, function()
+        wUl.CanvasPosition = Vector2.new(0, 0)
+    end)
+end
+
 local function w103()
     local a, b = w101()
     if w58 and w24.md[w58] then
@@ -2272,6 +2495,7 @@ local function w42(a)
     w47.Visible = a == "Farming"
     w69.Visible = a == "Tokens"
     w112.Visible = a == "Multipliers"
+    wUv.Visible = a == "Wiki"
     w32.Visible = a ~= "Home"
     w31.Text = a == "Home" and "cLTR Calculators" or "cLTR " .. a
     w24.view = a
@@ -2288,6 +2512,7 @@ end
 w12(w45.MouseButton1Click, function() w42("Farming") end)
 w12(w46.MouseButton1Click, function() w42("Tokens") end)
 w12(w111.MouseButton1Click, function() w42("Multipliers") end)
+w12(wUk.MouseButton1Click, function() w42("Wiki") end)
 w12(w32.MouseButton1Click, function() w42("Home") end)
 
 local w78
