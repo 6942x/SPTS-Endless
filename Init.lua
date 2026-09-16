@@ -1719,7 +1719,7 @@ local w99 = {}
 
 do
         local a = w89["Settings"]
-        local b = w51(a, 510, 1)
+        local b = w51(a, 626, 1)
         w53(b, "\xe2\x9a\x99\xef\xb8\x8f UI Configuration", 8)
         w52(b, "Customize interface preferences and keybinds", 34)
         w60(b, 60)
@@ -1834,6 +1834,56 @@ do
         for _, s in ipairs(w35) do q(s[1], s[2]) end
         w35 = {}
         w33(o.MouseButton1Click, function() r() end)
+        w60(b, 482)
+        local s1 = w53(b, "\xe2\x9a\xa0\xef\xb8\x8f Danger Zone", 492)
+        s1.TextSize = 14
+        s1.TextColor3 = w5(255, 90, 90)
+        w52(b, "Fully unloads eSPTS and closes everything it created", 518)
+        local u3 = w9("TextButton", b)
+        u3.Size = w6(1, -20, 0, 40)
+        u3.Position = w6(0, 10, 0, 544)
+        u3.BackgroundColor3 = w5(120, 38, 48)
+        u3.BorderSizePixel = 0
+        u3.Text = "Uninject"
+        u3.TextColor3 = w5(255, 255, 255)
+        u3.Font = w11
+        u3.TextSize = 14
+        u3.AutoButtonColor = false
+        w49(u3, 8)
+        w57(u3,
+                { BackgroundColor3 = w5(120, 38, 48), Size = w6(1, -20, 0, 40) },
+                { BackgroundColor3 = w5(150, 48, 58), Size = w6(1, -15, 0, 44) },
+                { BackgroundColor3 = w5(180, 58, 68), Size = w6(1, -25, 0, 36) }
+        )
+        local function wun()
+                pcall(wsv)
+                for _, a in pairs(w19.th) do
+                        if typeof(a) == "thread" and coroutine.status(a) ~= "dead" then pcall(task.cancel, a) end
+                end
+                for _, a in pairs(w19.cn) do pcall(a.Disconnect, a) end
+                for _, a in pairs(w19.tw) do pcall(a.Cancel, a) end
+                w83()
+                w19 = { cn = {}, tw = {}, th = {} }
+                w62:Destroy()
+        end
+        local u1 = false
+        local u2
+        w33(u3.MouseButton1Click, function()
+                if not w34("UN", 0.15) then return end
+                if not u1 then
+                        u1 = true
+                        u3.Text = "Click again to confirm"
+                        u2 = task.delay(3, function()
+                                u1 = false
+                                u3.Text = "Uninject"
+                        end)
+                        return
+                end
+                if u2 then pcall(task.cancel, u2) end
+                u1 = false
+                u3.Text = "Uninjecting..."
+                task.delay(0.15, wun)
+        end)
 end
 
 local wb = { busy = false, last = w8(0, 0), rbusy = false }
