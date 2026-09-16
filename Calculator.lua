@@ -316,7 +316,7 @@ end
 
 local w23 = "TrainingCalc/" .. w5.Name .. ".json"
 local w24 = {
-    key = "G", pos = nil, icon = nil, pw = "", cat = nil, view = "Home",
+    key = "G", pos = nil, icon = nil, pw = "", cat = nil, view = "Home", hide = false,
     md = {}, sp = {}, gn = {}, st = {}, mem = {},
     tok = {cur = {}, oth = {}},
     ml = {cur = {}, oth = {}, ov = {}, tg = nil, tm = nil},
@@ -341,7 +341,7 @@ local function wA(a)
     return b[w24.md[a] and "cur" or "oth"]
 end
 
-local w26, w29, w34, w109
+local w26, w29, w34, w109, wLg
 local w84, w85 = false, false
 local w110 = {}
 local w27 = os.clock()
@@ -414,7 +414,8 @@ local function w25()
         w24.icon = {X = d.icon.X, Y = d.icon.Y}
     end
     w24.pw = tostring(d.pw or d.power or "")
-    if d.view == "Farming" or d.view == "Tokens" or d.view == "Multipliers" or d.view == "Wiki" then
+    w24.hide = d.hide == true
+    if d.view == "Farming" or d.view == "Tokens" or d.view == "Multipliers" or d.view == "Wiki" or d.view == "Settings" then
         w24.view = d.view
     end
     if w19[d.cat] then
@@ -869,6 +870,18 @@ wUk.AutoButtonColor = false
 w9("UICorner", wUk).CornerRadius = UDim.new(0, 8)
 w38(wUk, w11.vio, w11.vioH)
 
+local wShm = w9("TextButton", w43)
+wShm.Text = "Settings"
+wShm.Size = w7(0, 140, 0, 100)
+wShm.Position = w7(0, 20, 0, 320)
+wShm.BackgroundColor3 = w11.item
+wShm.TextColor3 = w11.wht
+wShm.Font = w10
+wShm.TextSize = 20
+wShm.AutoButtonColor = false
+w9("UICorner", wShm).CornerRadius = UDim.new(0, 8)
+w38(wShm, w11.item, w11.hov)
+
 local w47 = w9("Frame", w29)
 w47.Name = "FarmingView"
 w47.Size = w7(1, 0, 1, 0)
@@ -1195,7 +1208,7 @@ local function w102(a)
     w54.Text = b.mu or "Select"
     w54:SetAttribute("Val", b.mv)
     w60.Text = (b.pw ~= "" and b.pw) or "0"
-    w88.Text = b.ob
+    w88.Text = b.ob or ""
     if b.ar and w19[a][b.ar] then
         wB(a, b.ar)
     else
@@ -1613,7 +1626,7 @@ local function w68(a, b, c, d)
 
     local f = w24.md.TK and w24.tok.cur or w24.tok.oth
     local g = w9("TextBox", w69)
-    g.Text = f[d]
+    g.Text = f[d] or ""
     g.Size = w7(0, 310, 0, 32)
     g.Position = w7(0, 150, 0, b)
     g.BackgroundColor3 = w11.inp
@@ -1642,11 +1655,11 @@ local w106 = w68("Time Spent", 240, "e.g. 9d10h22m or 9d 10h 22m", "sp")
 
 local function wTf()
     local a = w24.md.TK and w24.tok.cur or w24.tok.oth
-    w70.Text = a.tk
-    w71.Text = a.tp
-    w72.Text = a.ob
-    w86.Text = a.to
-    w106.Text = a.sp
+    w70.Text = a.tk or ""
+    w71.Text = a.tp or ""
+    w72.Text = a.ob or ""
+    w86.Text = a.to or ""
+    w106.Text = a.sp or ""
 end
 
 local w73 = w9("TextLabel", w69)
@@ -2361,6 +2374,211 @@ do
     end)
 end
 
+wSv = w9("Frame", w29)
+wSv.Name = "SettingsView"
+wSv.Size = w7(1, 0, 1, 0)
+wSv.BackgroundTransparency = 1
+wSv.Visible = false
+
+local wSa = w9("TextButton", wSv)
+wSa.Text = "Auto Hide UI: " .. (w24.hide and "ON" or "OFF")
+wSa.Size = w7(0, 440, 0, 32)
+wSa.Position = w7(0, 20, 0, 56)
+wSa.BackgroundColor3 = w24.hide and w11.grn or w11.btn
+wSa.TextColor3 = w11.wht
+wSa.Font = w10
+wSa.TextSize = 18
+wSa.AutoButtonColor = false
+w9("UICorner", wSa).CornerRadius = UDim.new(0, 4)
+
+local wSb = w9("TextLabel", wSv)
+wSb.Text = w24.hide and "Enabled -- the UI starts hidden (icon only) on next execution." or "Disabled -- the main UI opens automatically on next execution."
+wSb.Size = w7(0, 440, 0, 20)
+wSb.Position = w7(0, 20, 0, 94)
+wSb.TextColor3 = w11.dim
+wSb.BackgroundTransparency = 1
+wSb.Font = w10
+wSb.TextSize = 14
+wSb.TextXAlignment = Enum.TextXAlignment.Left
+
+local wSc = w9("TextLabel", wSv)
+wSc.Text = "Activity Log"
+wSc.Size = w7(0, 200, 0, 24)
+wSc.Position = w7(0, 20, 0, 130)
+wSc.TextColor3 = w11.wht
+wSc.BackgroundTransparency = 1
+wSc.Font = w10
+wSc.TextSize = 18
+wSc.TextXAlignment = Enum.TextXAlignment.Left
+
+local wSd = w9("TextButton", wSv)
+wSd.Text = "Clear"
+wSd.Size = w7(0, 60, 0, 24)
+wSd.Position = w7(1, -80, 0, 130)
+wSd.BackgroundColor3 = w11.btn
+wSd.TextColor3 = w11.dim
+wSd.Font = w10
+wSd.TextSize = 14
+wSd.AutoButtonColor = false
+w9("UICorner", wSd).CornerRadius = UDim.new(0, 4)
+w38(wSd, w11.btn, w11.hov)
+
+local wSe = w9("Frame", wSv)
+wSe.Size = w7(0, 440, 0, 180)
+wSe.Position = w7(0, 20, 0, 156)
+wSe.BackgroundColor3 = w8(54, 54, 54)
+wSe.BorderSizePixel = 0
+w9("UICorner", wSe).CornerRadius = UDim.new(0, 6)
+
+local wSf = w9("ScrollingFrame", wSe)
+wSf.Size = w7(1, -8, 1, -8)
+wSf.Position = w7(0, 4, 0, 4)
+wSf.BackgroundTransparency = 1
+wSf.BorderSizePixel = 0
+wSf.ScrollBarThickness = 4
+wSf.ScrollBarImageColor3 = w11.sbr
+wSf.ScrollingDirection = Enum.ScrollingDirection.Y
+wSf.CanvasSize = w7(0, 0, 0, 0)
+wSf.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+local wSq = w9("UIListLayout", wSf)
+wSq.SortOrder = Enum.SortOrder.LayoutOrder
+wSq.Padding = UDim.new(0, 2)
+
+local wSr = w9("UIPadding", wSf)
+wSr.PaddingTop = UDim.new(0, 2)
+wSr.PaddingBottom = UDim.new(0, 4)
+wSr.PaddingLeft = UDim.new(0, 4)
+wSr.PaddingRight = UDim.new(0, 4)
+
+local wSg = w9("TextLabel", wSf)
+wSg.Size = w7(1, 0, 0, 20)
+wSg.BackgroundTransparency = 1
+wSg.Font = w10
+wSg.TextSize = 14
+wSg.TextColor3 = w11.dim
+wSg.TextXAlignment = Enum.TextXAlignment.Left
+wSg.Text = "No activity yet."
+
+local wSn = 0
+local wSo = {}
+
+wLg = function(a, b)
+    wSg.Visible = false
+    wSn = wSn + 1
+    local c = os.date("%H:%M:%S")
+    local d = w9("TextLabel", wSf)
+    d.Size = w7(1, 0, 0, 0)
+    d.AutomaticSize = Enum.AutomaticSize.Y
+    d.BackgroundTransparency = 1
+    d.Font = w10
+    d.TextSize = 14
+    d.TextColor3 = b or w11.dim
+    d.TextXAlignment = Enum.TextXAlignment.Left
+    d.TextYAlignment = Enum.TextYAlignment.Top
+    d.TextWrapped = true
+    d.Text = "[" .. c .. "] " .. a
+    d.LayoutOrder = wSn
+    wSo[#wSo + 1] = d
+    if #wSo > 40 then
+        wSo[1]:Destroy()
+        table.remove(wSo, 1)
+    end
+    task.defer(function()
+        wSf.CanvasPosition = Vector2.new(0, math.huge)
+    end)
+end
+
+local wSi = function()
+    for _, a in ipairs(wSf:GetChildren()) do
+        if a:IsA("TextLabel") and a ~= wSg then
+            a:Destroy()
+        end
+    end
+    wSo = {}
+    wSn = 0
+    wSg.Visible = true
+    wSf.CanvasPosition = Vector2.new(0, 0)
+end
+
+w12(wSd.MouseButton1Click, wSi)
+
+w12(wSa.MouseButton1Click, function()
+    w24.hide = not w24.hide
+    wSa.Text = "Auto Hide UI: " .. (w24.hide and "ON" or "OFF")
+    wSa.BackgroundColor3 = w24.hide and w11.grn or w11.btn
+    wSb.Text = w24.hide and "Enabled -- the UI starts hidden (icon only) on next execution." or "Disabled -- the main UI opens automatically on next execution."
+    wLg("Auto Hide UI " .. (w24.hide and "enabled" or "disabled"), w24.hide and w11.grn or w11.dim)
+    w26()
+end)
+
+local wSk = w9("TextLabel", wSv)
+wSk.Text = "Danger Zone"
+wSk.Size = w7(0, 200, 0, 24)
+wSk.Position = w7(0, 20, 0, 352)
+wSk.TextColor3 = w11.red
+wSk.BackgroundTransparency = 1
+wSk.Font = w10
+wSk.TextSize = 18
+wSk.TextXAlignment = Enum.TextXAlignment.Left
+
+local wSp = w9("TextLabel", wSv)
+wSp.Text = "Fully unloads cLTR and closes everything it created."
+wSp.Size = w7(0, 440, 0, 20)
+wSp.Position = w7(0, 20, 0, 378)
+wSp.TextColor3 = w11.dim
+wSp.BackgroundTransparency = 1
+wSp.Font = w10
+wSp.TextSize = 14
+wSp.TextXAlignment = Enum.TextXAlignment.Left
+
+local wU3 = w9("TextButton", wSv)
+wU3.Text = "Uninject"
+wU3.Size = w7(0, 440, 0, 36)
+wU3.Position = w7(0, 20, 0, 404)
+wU3.BackgroundColor3 = w11.red
+wU3.TextColor3 = w11.wht
+wU3.Font = w10
+wU3.TextSize = 18
+wU3.AutoButtonColor = false
+w9("UICorner", wU3).CornerRadius = UDim.new(0, 4)
+w38(wU3, w11.red, w11.redH)
+
+local function wUnj()
+    w26()
+    for _, a in pairs(w.th) do
+        if typeof(a) == "thread" and coroutine.status(a) ~= "dead" then
+            pcall(task.cancel, a)
+        end
+    end
+    for _, a in pairs(w.cn) do
+        pcall(function() a:Disconnect() end)
+    end
+    for _, a in pairs(w.tw) do
+        pcall(function() a:Cancel() end)
+    end
+    w28:Destroy()
+    getgenv().cLTR_State = nil
+end
+
+local wU1 = false
+local wU2 = nil
+w12(wU3.MouseButton1Click, function()
+    if not wU1 then
+        wU1 = true
+        wU3.Text = "Click again to confirm"
+        wU2 = task.delay(3, function()
+            wU1 = false
+            wU3.Text = "Uninject"
+        end)
+        return
+    end
+    if wU2 then pcall(task.cancel, wU2) end
+    wU1 = false
+    wU3.Text = "Uninjecting..."
+    task.delay(0.15, wUnj)
+end)
+
 local function w103()
     local a, b = w101()
     if w58 and w24.md[w58] then
@@ -2421,6 +2639,13 @@ local function w104()
 end
 
 w109 = function(a)
+    if a ~= "" then
+        local c = string.match(a, "([^\n]+)")
+        if string.find(a, "\n", 1, true) then
+            c = c .. " ..."
+        end
+        wLg(c)
+    end
     if w24.view == "Farming" then
         if w58 then
             w24.msg[w58] = a
@@ -2496,6 +2721,7 @@ local function w42(a)
     w69.Visible = a == "Tokens"
     w112.Visible = a == "Multipliers"
     wUv.Visible = a == "Wiki"
+    wSv.Visible = a == "Settings"
     w32.Visible = a ~= "Home"
     w31.Text = a == "Home" and "cLTR Calculators" or "cLTR " .. a
     w24.view = a
@@ -2513,6 +2739,7 @@ w12(w45.MouseButton1Click, function() w42("Farming") end)
 w12(w46.MouseButton1Click, function() w42("Tokens") end)
 w12(w111.MouseButton1Click, function() w42("Multipliers") end)
 w12(wUk.MouseButton1Click, function() w42("Wiki") end)
+w12(wShm.MouseButton1Click, function() w42("Settings") end)
 w12(w32.MouseButton1Click, function() w42("Home") end)
 
 local w78
@@ -2600,3 +2827,9 @@ if w24.md.ML then
     w124()
 end
 w82()
+
+if not w24.hide then
+    w34.Visible = false
+    w29.Visible = true
+end
+wLg("Session started -- Auto Hide UI " .. (w24.hide and "ON" or "OFF"), w11.dim)
