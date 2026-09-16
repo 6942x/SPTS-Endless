@@ -2575,7 +2575,7 @@ w12(wU3.MouseButton1Click, function()
     end
     if wU2 then pcall(task.cancel, wU2) end
     wU1 = false
-    wU3.Text = "Uninjecting..."
+    wU3.Text = "Uninjecting"
     task.delay(0.15, wUnj)
 end)
 
@@ -2640,9 +2640,10 @@ end
 
 w109 = function(a)
     if a ~= "" then
-        local c = string.match(a, "([^\n]+)")
-        if string.find(a, "\n", 1, true) then
-            c = c .. " ..."
+        local k = string.char(10)
+        local c = string.match(a, "([^" .. k .. "]+)") or a
+        if string.find(a, k, 1, true) then
+            c = c .. " --"
         end
         wLg(c)
     end
