@@ -1289,10 +1289,6 @@ end)
 wXl = function()
     local a = w58 ~= nil and wWst[w58] == true
     local b = false
-    if a then
-        local c = w16(w60.Text)
-        b = c ~= nil and c > 0 and c < w16(w19[w58][1].req)
-    end
     w61.Visible = not b
     w62.Visible = not b
     local c = a and 46 or 0
@@ -2339,7 +2335,7 @@ do
             e.TextXAlignment = Enum.TextXAlignment.Left
         end
     end
-    wUh("Power Skills", w11.cy, 20)
+    wUh("All Skills", w11.cy, 20)
     for _, a in ipairs({"FS", "BT", "MS", "JF", "PP"}) do
         local b = wU[a]
         wUr = wUr + 1
