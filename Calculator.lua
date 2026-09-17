@@ -2339,7 +2339,7 @@ do
             e.TextXAlignment = Enum.TextXAlignment.Left
         end
     end
-    wUh("All Skills", w11.cy, 20)
+    wUh("Power Skills", w11.cy, 20)
     for _, a in ipairs({"FS", "BT", "MS", "JF", "PP"}) do
         local b = wU[a]
         wUr = wUr + 1
